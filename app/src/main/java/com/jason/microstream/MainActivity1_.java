@@ -295,6 +295,9 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
                     Log.d(TAGT, "remotePeerConnection.createAnswer->onCreateSuccess");
                     remotePeerConnection.setLocalDescription(new SdpObserver("remote 设置本地 sdp"), sessionDescription1);
                     nioBinder.nioWriteString("remotePeerConnection.createAnswer->onCreateSuccess"+gson.toJson(sessionDescription1));
+
+
+
                 }
             }, new MediaConstraints());
         } else if (ss.startsWith("localPeerConnection.createAnswer->onCreateSuccess")) {
