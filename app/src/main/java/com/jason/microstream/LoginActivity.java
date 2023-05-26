@@ -39,7 +39,7 @@ import okhttp3.ResponseBody;
 
 public class LoginActivity extends AppCompatActivity {
 
-    public static final String url = "10.1.66.77";
+    public static final String ip = "10.2.113.3";
     public static final String port = "8887";
 
 
@@ -55,18 +55,18 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    String apiLogin = "http://127.0.0.1:8009/demo-0.0.1-SNAPSHOT/login?userData=%7B%22userName%22:%20%22user2%22,%22password%22:%20%22123%22%7D";
+    String apiLogin = "http://"+ip+":8009/demo-0.0.1-SNAPSHOT/login?userData=%7B%22userName%22:%20%22user2%22,%22password%22:%20%22123%22%7D";
 
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login:
                 String name = ((TextView) findViewById(R.id.user_name)).getText().toString();
                 String pwd = ((TextView) findViewById(R.id.user_pwd)).getText().toString();
-                String url = "http://10.1.66.77:8009/demo-0.0.1-SNAPSHOT/login?userData=%7B%22userName%22:%20%22"+name+"%22,%22password%22:%20%22"+pwd+"%22%7D";
+                String loginUrl = "http://"+ip+":8009/demo-0.0.1-SNAPSHOT/login?userData=%7B%22userName%22:%20%22"+name+"%22,%22password%22:%20%22"+pwd+"%22%7D";
 
                 GetBuilder requestBuilder= OkHttpUtils
                         .get()
-                        .url(url);
+                        .url(loginUrl);
 //                for (String key : param.keySet()) {
 //                  requestBuilder.addParams(key,param.get(key));
 //                }
@@ -130,7 +130,7 @@ public class LoginActivity extends AppCompatActivity {
                         .flatMap(new Function<User, ObservableSource<User>>() {
                             @Override
                             public ObservableSource<User> apply(User user) throws Exception {
-                                return Observable.create(new ObservableOnSubscribe<Userl>() {
+                                return Observable.create(new ObservableOnSubscribe<User>() {
                                     @Override
                                     public void subscribe(ObservableEmitter<User> e) throws Exception {
                                         bindService(new Intent(LoginActivity.this, NioPeriodChronicService.class), new ServiceConnection() {
@@ -154,14 +154,15 @@ public class LoginActivity extends AppCompatActivity {
                                                     }
                                                 });
                                                 nioBinder.initWriteThread();
-                                                nioBinder.nioConnect(url,port,user.getUid(),user.getToken());
+                                                nioBinder.nioConnect(ip,port,user.getUid(),user.getToken());
                                                 e.onNext(user);
                                             }
                                             @Override
                                             public void onServiceDisconnected(ComponentName name) {}
                                         }, Context.BIND_AUTO_CREATE);
                                     }
-                                });
+                                })
+                                        .subscribeOn(AndroidSchedulers.mainThread());
                             }
                         })
                         .subscribeOn(Schedulers.io())

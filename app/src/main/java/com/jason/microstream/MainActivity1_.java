@@ -68,18 +68,18 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
     }
 
     private void nioConnect() {
-        startService(new Intent(this, NioPeriodChronicService.class));
+//        startService(new Intent(this, NioPeriodChronicService.class));
         bindService(new Intent(this, NioPeriodChronicService.class), new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 nioBinder = (NioPeriodChronicService.NioBinder) service;
-                String host = "192.168.137.36";
-                String port = "8887";
-                String uid = "user1";
-                String token = "user1";
-                nioBinder.registerNIoSelector(MainActivity1_.this);
-                nioBinder.initWriteThread();
-                nioBinder.nioConnect(host,port,uid,token);
+//                String host = "192.168.137.36";
+//                String port = "8887";
+//                String uid = "user1";
+//                String token = "user1";
+//                nioBinder.registerNIoSelector(MainActivity1_.this);
+//                nioBinder.initWriteThread();
+//                nioBinder.nioConnect(host,port,uid,token);
             }
             @Override
             public void onServiceDisconnected(ComponentName name) {}
@@ -94,20 +94,20 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
     protected void onResume() {
         super.onResume();
         resumeCount++;
-        if (resumeCount == 2) {
-            bindService(new Intent(this, NioPeriodChronicService.class), new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    nioBinder = (NioPeriodChronicService.NioBinder) service;
-                    nioBinder.setView(MainActivity1_.this);
-                }
-
-                @Override
-                public void onServiceDisconnected(ComponentName name) {
-
-                }
-            }, Context.BIND_AUTO_CREATE);
-        }
+//        if (resumeCount == 2) {
+//            bindService(new Intent(this, NioPeriodChronicService.class), new ServiceConnection() {
+//                @Override
+//                public void onServiceConnected(ComponentName name, IBinder service) {
+//                    nioBinder = (NioPeriodChronicService.NioBinder) service;
+//                    nioBinder.setView(MainActivity1_.this);
+//                }
+//
+//                @Override
+//                public void onServiceDisconnected(ComponentName name) {
+//
+//                }
+//            }, Context.BIND_AUTO_CREATE);
+//        }
     }
 
     SurfaceView mSurfaceView;
