@@ -15,7 +15,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 @Deprecated
-public class NioPeriodChronicActivity extends AppCompatActivity implements NioPeriodChronicService.View {
+public class NioPeriodChronicActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,15 +104,7 @@ public class NioPeriodChronicActivity extends AppCompatActivity implements NioPe
         });
     }
 
-    @Override
-    public void showData(String ss) {
 
-    }
-
-    @Override
-    public void showConnection(String ip, String port, String user, String tt) {
-
-    }
 
     public void showConnectedUsers(String userNames) {
         runOnUiThread(new Runnable() {

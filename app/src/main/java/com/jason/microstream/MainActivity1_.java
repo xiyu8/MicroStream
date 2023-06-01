@@ -58,16 +58,17 @@ import java.util.Map;
  * 信令传输使用java nio
  *
  */
-public class MainActivity1_ extends AppCompatActivity implements NioPeriodChronicService.View, LocBroadcastReceiver {
+public class MainActivity1_ extends AppCompatActivity implements LocBroadcastReceiver {
     public final String TAG = "video_tunnel";
     public final String TAGT = "VideoStep";
-    public final String  VIDEO_TRACK_ID = "ARDAMSv0";
-    public final String  AUDIO_TRACK_ID = "ARDAMSa0";
-    public final String[]  events = {Events.ACTION_ON_MSG_RECEIVE,Events.ACTION_ON_LOGIN,Events.ACTION_ON_LOGOUT};
-    public static final Map<String, String> userMap = new HashMap<String, String>(){{
+    public final String VIDEO_TRACK_ID = "ARDAMSv0";
+    public final String AUDIO_TRACK_ID = "ARDAMSa0";
+    public final String[] events = {Events.ACTION_ON_MSG_RECEIVE, Events.ACTION_ON_LOGIN, Events.ACTION_ON_LOGOUT};
+    public static final Map<String, String> userMap = new HashMap<String, String>() {{
         put("11111111111111111111111111111112", "user1");
         put("11111111111111111111111111111113", "user2");
     }};
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -321,7 +322,6 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
     }
 
 
-    @Override
     public void showData(String ss) {
         if (ss.startsWith("localPeerConnection.createOffer->onCreateSuccess")) {
             SessionDescription sessionDescription = gson.fromJson(
@@ -354,10 +354,7 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
         }
     }
 
-    @Override
-    public void showConnection(String ip, String port, String uid, String token) {
 
-    }
 
 
     private VideoCapturer createVideoCapturer() {
@@ -401,10 +398,7 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
     public void showConnection(String ip, String port, String user) {
 
     }
-    @Override
-    public void showError(String ss) {
 
-    }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @Override
     public void onReceive(String broadcastName, Object obj) {

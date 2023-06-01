@@ -138,22 +138,7 @@ public class LoginActivity extends AppCompatActivity {
                                             @Override
                                             public void onServiceConnected(ComponentName name, IBinder service) {
                                                 NioPeriodChronicService.NioBinder nioBinder = (NioPeriodChronicService.NioBinder) service;
-                                                nioBinder.registerNIoSelector(new NioPeriodChronicService.View() {
-                                                    @Override
-                                                    public void showError(String ss) {
-
-                                                    }
-
-                                                    @Override
-                                                    public void showData(String ss) {
-
-                                                    }
-
-                                                    @Override
-                                                    public void showConnection(String ip, String port, String user, String tt) {
-
-                                                    }
-                                                });
+                                                nioBinder.registerNioSelector();
                                                 nioBinder.initWriteThread();
                                                 nioBinder.nioConnect(ip,port,user.getUid(),user.getToken());
                                                 e.onNext(user);
