@@ -12,11 +12,18 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
+import com.jason.microstream.localbroadcast.Events;
+import com.jason.microstream.localbroadcast.LocBroadcast;
+import com.jason.microstream.localbroadcast.LocBroadcastReceiver;
+import com.jason.microstream.model.msg.DisplayMsg;
 
 import org.webrtc.AudioSource;
 import org.webrtc.AudioTrack;
@@ -40,7 +47,9 @@ import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -49,11 +58,16 @@ import java.util.List;
  * 信令传输使用java nio
  *
  */
-public class MainActivity1_ extends AppCompatActivity implements NioPeriodChronicService.View {
+public class MainActivity1_ extends AppCompatActivity implements NioPeriodChronicService.View, LocBroadcastReceiver {
     public final String TAG = "video_tunnel";
     public final String TAGT = "VideoStep";
     public final String  VIDEO_TRACK_ID = "ARDAMSv0";
     public final String  AUDIO_TRACK_ID = "ARDAMSa0";
+    public final String[]  events = {Events.ACTION_ON_MSG_RECEIVE,Events.ACTION_ON_LOGIN,Events.ACTION_ON_LOGOUT};
+    public static final Map<String, String> userMap = new HashMap<String, String>(){{
+        put("11111111111111111111111111111112", "user1");
+        put("11111111111111111111111111111113", "user2");
+    }};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +75,8 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
         gson = new Gson();
 //        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA},
 //                111);
+
+        LocBroadcast.getInstance().registerBroadcast(this, events);
 
         nioConnect();
         initView();
@@ -80,6 +96,12 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
 //                nioBinder.registerNIoSelector(MainActivity1_.this);
 //                nioBinder.initWriteThread();
 //                nioBinder.nioConnect(host,port,uid,token);
+
+                if (nioBinder.isConnected()) {
+                    connection_status.setText("connected");
+                } else {
+                    connection_status.setText("unconnected");
+                }
             }
             @Override
             public void onServiceDisconnected(ComponentName name) {}
@@ -114,10 +136,19 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
     SurfaceHolder surfaceHolder;
     CameraManager mCameraManager;
     Handler cameraHandler;
+    TextView receive_msg_content;
+    EditText send_user, send_msg_content;
+    Button send_msg;
+    TextView connection_status;
     private void initView() {
         mSurfaceView =findViewById(R.id.local_video);
         mLocalSurfaceView =findViewById(R.id.LocalSurfaceView);
         mRemoteSurfaceView =findViewById(R.id.RemoteSurfaceView);
+        receive_msg_content =findViewById(R.id.receive_msg_content);
+        connection_status =findViewById(R.id.connection_status);
+        send_user =findViewById(R.id.send_user);
+        send_msg =findViewById(R.id.send_msg);
+        send_msg_content =findViewById(R.id.send_msg_content);
 
 //        surfaceHolder = mSurfaceView.getHolder();
 //        surfaceHolder.setKeepScreenOn(true);
@@ -221,15 +252,23 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
 
     int commandCount = 0;
     public void onClick(View view) {
-        if (commandCount == 0) {
-            B0(); //将 localPeerConnection 提供给 其它端连接
-            remotePeerConnection.addStream(localMediaStream);
+        switch (view.getId()) {
+            case R.id.button:
+                if (commandCount == 0) {
+                    B0(); //将 localPeerConnection 提供给 其它端连接
+                    remotePeerConnection.addStream(localMediaStream);
+                }
+                if (commandCount == 1) {
+                    B1();
+                }
+                commandCount++;
+                break;
+            case R.id.send_msg:
+                sendMsg();
+                break;
         }
-        if (commandCount == 1) {
-            B1();
-        }
-        commandCount++;
     }
+
 
     public void onClickk(View view) {
         startActivity(new Intent(this,NioPeriodChronicActivity.class));
@@ -366,5 +405,35 @@ public class MainActivity1_ extends AppCompatActivity implements NioPeriodChroni
     public void showError(String ss) {
 
     }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    @Override
+    public void onReceive(String broadcastName, Object obj) {
+        runOnUiThread(() -> {
+            switch (broadcastName) {
+                case Events.ACTION_ON_MSG_RECEIVE:
+                    String displayMsg = (String) obj;
+                    receive_msg_content.append(displayMsg + "\r");
+                    break;
+                case Events.ACTION_ON_LOGIN:
+                    connection_status.setText("connected");
+                    break;
+                case Events.ACTION_ON_LOGOUT:
+                    connection_status.setText("unconnected");
+                    break;
+            }
+        });
 
+    }
+
+    private void sendMsg() {
+        String user = send_user.getText().toString();
+        String sendMsg = send_msg_content.getText().toString();
+
+        if (user == null || sendMsg == null || user.equals("") || sendMsg.equals("")) {
+            return;
+        }
+
+        nioBinder.sendNormalMsg(userMap.get(user),sendMsg);
+
+    }
 }

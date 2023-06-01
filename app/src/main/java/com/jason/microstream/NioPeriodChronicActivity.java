@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+@Deprecated
 public class NioPeriodChronicActivity extends AppCompatActivity implements NioPeriodChronicService.View {
 
     @Override

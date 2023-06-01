@@ -62,7 +62,8 @@ public class LoginActivity extends AppCompatActivity {
             case R.id.login:
                 String name = ((TextView) findViewById(R.id.user_name)).getText().toString();
                 String pwd = ((TextView) findViewById(R.id.user_pwd)).getText().toString();
-                String loginUrl = "http://"+ip+":8009/demo-0.0.1-SNAPSHOT/login?userData=%7B%22userName%22:%20%22"+name+"%22,%22password%22:%20%22"+pwd+"%22%7D";
+//                String loginUrl = "http://"+ip+":8009/demo-0.0.1-SNAPSHOT/login?userData=%7B%22userName%22:%20%22"+name+"%22,%22password%22:%20%22"+pwd+"%22%7D";
+                String loginUrl = "http://"+ip+":8080/login?userData=%7B%22userName%22:%20%22"+name+"%22,%22password%22:%20%22"+pwd+"%22%7D";
 
                 GetBuilder requestBuilder= OkHttpUtils
                         .get()

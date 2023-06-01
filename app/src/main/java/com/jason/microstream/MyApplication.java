@@ -65,11 +65,6 @@ public class MyApplication extends Application {
 
 
 
-
-
-
-
-
     }
 
 
@@ -90,6 +85,8 @@ public class MyApplication extends Application {
             return x509Certificates;
         }
     };
+
+
 
 
 
