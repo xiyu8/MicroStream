@@ -1,6 +1,5 @@
 package com.jason.microstream;
 
-import static com.jason.microstream.MainActivity1_.userMap;
 
 import android.app.Service;
 import android.content.Intent;
@@ -150,6 +149,7 @@ public class NioPeriodChronicService extends Service {
     }
 
 
+    @Deprecated
     private  void nioWriteString(final String ss) {
         if (mSocketChannel == null) {
             showError("当前未连接");
@@ -162,7 +162,8 @@ public class NioPeriodChronicService extends Service {
                     try {
                         int action = 0;
                         byte[] batchData = getBatchData(action, ss.getBytes(("UTF-8")));
-                        nioWriteStringImp(batchData);
+                        byte[] data = pkgServiceData(batchData);
+                        nioWriteStringImp(data);
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();
                     }
@@ -178,41 +179,48 @@ public class NioPeriodChronicService extends Service {
             showError("当前未连接");
             return;
         }
+        int sendType = 1;
+        String msgData = userId + sendMsg;
+        byte[] dataBytes = new byte[0];
+        try {
+            dataBytes = msgData.getBytes(("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] targetDataBytes = new byte[4 + dataBytes.length];
+        System.arraycopy(Tool.intToByte4(sendType),0,targetDataBytes,0,4);
+        System.arraycopy(dataBytes,0,targetDataBytes,4,dataBytes.length);
+        int action = 0;
+        byte[] batchData = getBatchData(action, targetDataBytes);
+        byte[] capsuleData = pkgServiceData(batchData);
+        asyncSendImp(capsuleData);
+    }
+
+    private void asyncSendImp(byte[] capsuleData) {
         if (sendHandler != null) {
             sendHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        int sendType = 1;
-                        String data = userId + sendMsg;
-                        byte[] dataBytes = data.getBytes(("UTF-8"));
-                        byte[] targetDataBytes = new byte[4 + dataBytes.length];
-                        System.arraycopy(Tool.intToByte4(sendType),0,targetDataBytes,0,4);
-                        System.arraycopy(dataBytes,0,targetDataBytes,4,dataBytes.length);
-                        int action = 0;
-                        byte[] batchData = getBatchData(action, targetDataBytes);
-                        nioWriteStringImp(batchData);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+                    nioWriteStringImp(capsuleData);
                 }
             });
         } else {
+            nioDisconnect();
             showError("发送线程被终止");
         }
     }
+
     private byte[] getBatchData(int actionRet, byte[] bytes) {
         byte[] cb = new byte[4 + bytes.length];
         System.arraycopy(Tool.intToByte4(actionRet), 0, cb, 0, 4);
         System.arraycopy(bytes, 0, cb, 4, bytes.length);
         return cb;
     }
-    private synchronized void nioWriteStringImp(byte[] batchBytes) {
+    private synchronized void nioWriteStringImp(byte[] data) {
         if (mSocketChannel == null) {
             showError("发送失败：连接已断开");
         }
         try {
-            byte[] data = pkgServiceData(batchBytes);
             ByteBuffer byteBuffer = ByteBuffer.wrap(data);
             mSocketChannel.write(byteBuffer);
         } catch (IOException e) {
@@ -298,6 +306,7 @@ public class NioPeriodChronicService extends Service {
 
     public static final int SEND_TYPE_SIZE = 4;
     public static final int SEND_TYPE_SINGLE = 1;
+    public static final int SEND_TYPE_RTC = 2;
 
     public static final int FROM_UID_SIZE = 32;
 
@@ -348,7 +357,9 @@ public class NioPeriodChronicService extends Service {
                     String msgContent = new String(msgData, "UTF-8");
 
                     // msgCache.add(msgContent);
-                    LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_MSG_RECEIVE, userMap.get(formId) + msgContent);
+                    LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_MSG_RECEIVE, formId + msgContent);
+                } else if (sendType == SEND_TYPE_RTC) {
+
                 }
             }
 
@@ -357,6 +368,14 @@ public class NioPeriodChronicService extends Service {
         } finally {
             //关闭socket
         }
+    }
+
+    private void dispatchAction() {
+
+    }
+
+    private void dispatchMsgType() {
+
     }
 
 
@@ -455,6 +474,7 @@ public class NioPeriodChronicService extends Service {
         public void initWriteThread() {
             NioPeriodChronicService.this.initWriteThread();
         }
+        @Deprecated
         public void nioWriteString(String sendMsg) {
             NioPeriodChronicService.this.nioWriteString(sendMsg);
         }

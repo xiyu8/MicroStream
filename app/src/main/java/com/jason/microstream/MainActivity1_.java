@@ -64,9 +64,13 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
     public final String VIDEO_TRACK_ID = "ARDAMSv0";
     public final String AUDIO_TRACK_ID = "ARDAMSa0";
     public final String[] events = {Events.ACTION_ON_MSG_RECEIVE, Events.ACTION_ON_LOGIN, Events.ACTION_ON_LOGOUT};
-    public static final Map<String, String> userMap = new HashMap<String, String>() {{
-        put("11111111111111111111111111111112", "user1");
-        put("11111111111111111111111111111113", "user2");
+    public static final Map<String, String> userNameIdMap = new HashMap<String, String>() {{
+        put("user1", "11111111111111111111111111111111");
+        put("user2", "11111111111111111111111111111112");
+    }};
+    public static final Map<String, String> userIdNameMap = new HashMap<String, String>() {{
+        put("11111111111111111111111111111111", "user1");
+        put("11111111111111111111111111111112", "user2");
     }};
 
     @Override
@@ -198,11 +202,7 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
                 //用来表示当前初始化 camera 的线程，和 application context，当调用 startCapture 才会回调。
                 videoCapturer.initialize(mSurfaceTextureHelper, getApplicationContext(), videoSource.getCapturerObserver());
                 //开始采集
-                videoCapturer.startCapture(
-                        mLocalSurfaceView.getWidth(),
-                        mLocalSurfaceView.getHeight(),
-                        30
-                );
+                videoCapturer.startCapture(mLocalSurfaceView.getWidth(), mLocalSurfaceView.getHeight(), 30);
                 // 初始化 SurfaceViewRender ，这个方法非常重要，不初始化黑屏
                 mLocalSurfaceView.init(eglBaseContext, null);
 //                mLocalSurfaceView.setScalingType(RendererCommon.ScalingType.SCALE_ASPECT_FILL);
@@ -256,11 +256,11 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
         switch (view.getId()) {
             case R.id.button:
                 if (commandCount == 0) {
-                    B0(); //将 localPeerConnection 提供给 其它端连接
-                    remotePeerConnection.addStream(localMediaStream);
+                    B0(); // 下行流监听：将 localPeerConnection 提供给 其它端连接
+                    remotePeerConnection.addStream(localMediaStream); //上行流添加1
                 }
                 if (commandCount == 1) {
-                    B1();
+                    B1();//上行流添加2 触发上传
                 }
                 commandCount++;
                 break;
@@ -275,11 +275,11 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
         startActivity(new Intent(this,NioPeriodChronicActivity.class));
     }
 
-    private void B0() {
+    private void B0() {//下行流监听
         List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 //        iceServers.add(new PeerConnection.IceServer("stun:stun.l.google.com:19302"));
         remotePeerConnection = mPeerConnectionFactory.createPeerConnection(iceServers, new PeerObserver() {
-            public void onAddStream(MediaStream mediaStream) {
+            public void onAddStream(MediaStream mediaStream) { //下行流监听
                 super.onAddStream(mediaStream);
                 runOnUiThread(new Runnable() {
                     @Override
@@ -303,8 +303,7 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
     }
 
 
-    private void B1() {
-
+    private void B1() { //上行流添加2 触发上传
         remotePeerConnection.createOffer(new SdpObserver("创建local offer") {
             public void onCreateSuccess(SessionDescription sessionDescription) {
                 Log.d(TAGT, "remotePeerConnection.createOffer->onCreateSuccess");
@@ -367,31 +366,22 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
 
     private VideoCapturer createCameraCapturer(CameraEnumerator enumerator) {
         final String[] deviceNames = enumerator.getDeviceNames();
-
-        // First, try to find front facing camera
-        Log.d(TAG, "Looking for front facing cameras.");
         for (String deviceName : deviceNames) {
             if (enumerator.isFrontFacing(deviceName)) {
-                Log.d(TAG, "Creating front facing camera capturer.");
                 VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
                 if (videoCapturer != null) {
                     return videoCapturer;
                 }
             }
         }
-
-        // Front facing camera not found, try something else
-        Log.d(TAG, "Looking for other cameras.");
         for (String deviceName : deviceNames) {
             if (!enumerator.isFrontFacing(deviceName)) {
-                Log.d(TAG, "Creating other camera capturer.");
                 VideoCapturer videoCapturer = enumerator.createCapturer(deviceName, null);
                 if (videoCapturer != null) {
                     return videoCapturer;
                 }
             }
         }
-
         return null;
     }
 
@@ -427,7 +417,7 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
             return;
         }
 
-        nioBinder.sendNormalMsg(userMap.get(user),sendMsg);
+        nioBinder.sendNormalMsg(userNameIdMap.get(user),sendMsg);
 
     }
 }

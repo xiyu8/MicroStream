@@ -39,7 +39,7 @@ import okhttp3.ResponseBody;
 
 public class LoginActivity extends AppCompatActivity {
 
-    public static final String ip = "10.2.113.3";
+    public static final String ip = "10.1.82.207";
     public static final String port = "8887";
 
 
@@ -56,6 +56,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     String apiLogin = "http://"+ip+":8009/demo-0.0.1-SNAPSHOT/login?userData=%7B%22userName%22:%20%22user2%22,%22password%22:%20%22123%22%7D";
+   // "http://127.0.0.1:8080/login?userData=%7B%22userName%22:%20%22user2%22,%22password%22:%20%22123%22%7D";
 
     public void onClick(View view) {
         switch (view.getId()) {
@@ -138,9 +139,11 @@ public class LoginActivity extends AppCompatActivity {
                                             @Override
                                             public void onServiceConnected(ComponentName name, IBinder service) {
                                                 NioPeriodChronicService.NioBinder nioBinder = (NioPeriodChronicService.NioBinder) service;
+
                                                 nioBinder.registerNioSelector();
                                                 nioBinder.initWriteThread();
                                                 nioBinder.nioConnect(ip,port,user.getUid(),user.getToken());
+
                                                 e.onNext(user);
                                             }
                                             @Override
