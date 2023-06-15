@@ -60,10 +60,10 @@ import java.util.Map;
  */
 public class MainActivity1_ extends AppCompatActivity implements LocBroadcastReceiver {
     public final String TAG = "video_tunnel";
-    public final String TAGT = "VideoStep";
+    public static final String TAGT = "VideoStep";
     public final String VIDEO_TRACK_ID = "ARDAMSv0";
     public final String AUDIO_TRACK_ID = "ARDAMSa0";
-    public final String[] events = {Events.ACTION_ON_MSG_RECEIVE, Events.ACTION_ON_LOGIN, Events.ACTION_ON_LOGOUT};
+    public final String[] events = {Events.ACTION_ON_MSG_RECEIVE, Events.ACTION_ON_SDP_OFFER_RECEIVE, Events.ACTION_ON_LOGIN, Events.ACTION_ON_LOGOUT};
     public static final Map<String, String> userNameIdMap = new HashMap<String, String>() {{
         put("user1", "11111111111111111111111111111111");
         put("user2", "11111111111111111111111111111112");
@@ -272,9 +272,10 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
 
 
     public void onClickk(View view) {
-        startActivity(new Intent(this,NioPeriodChronicActivity.class));
+//        startActivity(new Intent(this,NioPeriodChronicActivity.class));
     }
 
+    int iceCount = 1;
     private void B0() {//下行流监听
         List<PeerConnection.IceServer> iceServers = new ArrayList<>();
 //        iceServers.add(new PeerConnection.IceServer("stun:stun.l.google.com:19302"));
@@ -284,7 +285,7 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Log.d(TAGT, "mediaStream.videoTracks.get(0).addSink(mRemoteSurfaceView)");
+                        Log.e(TAGT, "downstream receive and added");
                         mediaStream.videoTracks.get(0).addSink(mRemoteSurfaceView);
                     }
                 });
@@ -292,10 +293,12 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
 
             public void onIceCandidate(IceCandidate iceCandidate) {
                 super.onIceCandidate(iceCandidate);
-                Log.d(TAGT, "remotePeerConnection->onIceCandidate");
+                Log.e(TAGT, "onIceCandidate:" + iceCount);
+                iceCount++;
                 remotePeerConnection.addIceCandidate(iceCandidate);
-                Log.d(TAGT, "localPeerConnection->onIceCandidate->nioBinder.nioWriteString");
                 nioBinder.nioWriteString("remotePeerConnection->onIceCandidate"+gson.toJson(iceCandidate));
+                Log.e(TAGT, "onIceCandidate send swap");
+                nioBinder.sendSwapIceCandidate(iceCandidate,peerId);
 
             }
         });
@@ -304,18 +307,19 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
 
 
     private void B1() { //上行流添加2 触发上传
+        Log.e(TAGT, "upstream offered");
         remotePeerConnection.createOffer(new SdpObserver("创建local offer") {
             public void onCreateSuccess(SessionDescription sessionDescription) {
-                Log.d(TAGT, "remotePeerConnection.createOffer->onCreateSuccess");
+                Log.e(TAGT, "upstream offered create success");
                 remotePeerConnection.setLocalDescription(new SdpObserver("local 设置本地 sdp"){
                     @Override
                     public void onCreateSuccess(SessionDescription sessionDescription) {
                         super.onCreateSuccess(sessionDescription);
                     }
                 }, sessionDescription);
-
-                Log.d(TAGT, "remotePeerConnection.createOffer->onCreateSuccess->nioBinder.nioWriteString"+gson.toJson(sessionDescription));
                 nioBinder.nioWriteString("remotePeerConnection.createOffer->onCreateSuccess"+gson.toJson(sessionDescription));;
+                Log.e(TAGT, "upstream offer sdp");
+                nioBinder.sendOfferSdp(sessionDescription,peerId);
             }
         }, new MediaConstraints());
     }
@@ -325,12 +329,12 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
         if (ss.startsWith("localPeerConnection.createOffer->onCreateSuccess")) {
             SessionDescription sessionDescription = gson.fromJson(
                     ss.substring("localPeerConnection.createOffer->onCreateSuccess".length()), SessionDescription.class);
-            Log.d(TAGT, "localPeerConnection.createOffer->onCreateSuccess:remotePeerConnection.setRemoteDescription");
+            Log.e(TAGT, "localPeerConnection.createOffer->onCreateSuccess:remotePeerConnection.setRemoteDescription");
             remotePeerConnection.setRemoteDescription(new SdpObserver("把 sdp 给到 remote"), sessionDescription);
-            Log.d(TAGT, "localPeerConnection.createOffer->onCreateSuccess:remotePeerConnection.createAnswer");
+            Log.e(TAGT, "localPeerConnection.createOffer->onCreateSuccess:remotePeerConnection.createAnswer");
             remotePeerConnection.createAnswer(new SdpObserver("创建 remote answer") {
                 public void onCreateSuccess(SessionDescription sessionDescription1) {
-                    Log.d(TAGT, "remotePeerConnection.createAnswer->onCreateSuccess");
+                    Log.e(TAGT, "remotePeerConnection.createAnswer->onCreateSuccess");
                     remotePeerConnection.setLocalDescription(new SdpObserver("remote 设置本地 sdp"), sessionDescription1);
                     nioBinder.nioWriteString("remotePeerConnection.createAnswer->onCreateSuccess"+gson.toJson(sessionDescription1));
 
@@ -341,15 +345,15 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
         } else if (ss.startsWith("localPeerConnection.createAnswer->onCreateSuccess")) {
             SessionDescription sessionDescription = gson.fromJson(
                     ss.substring("localPeerConnection.createAnswer->onCreateSuccess".length()), SessionDescription.class);
-            Log.d(TAGT, "localPeerConnection.createAnswer->onCreateSuccess:remotePeerConnection.setRemoteDescription");
+            Log.e(TAGT, "localPeerConnection.createAnswer->onCreateSuccess:remotePeerConnection.setRemoteDescription");
             remotePeerConnection.setRemoteDescription(new SdpObserver("把 sdp 给到 remote"), sessionDescription);
         } else if (ss.startsWith("localPeerConnection->onIceCandidate")) {
             IceCandidate iceCandidate = gson.fromJson(
                     ss.substring("localPeerConnection->onIceCandidate".length()), IceCandidate.class);
-            Log.d(TAGT, "localPeerConnection->onIceCandidate:remotePeerConnection.addIceCandidate");
+            Log.e(TAGT, "localPeerConnection->onIceCandidate:remotePeerConnection.addIceCandidate");
             remotePeerConnection.addIceCandidate(iceCandidate);
         } else {
-            Log.d(TAGT, "----------"+ss);
+            Log.e(TAGT, "----------"+ss);
         }
     }
 
@@ -389,14 +393,44 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
 
     }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    String peerId;
     @Override
     public void onReceive(String broadcastName, Object obj) {
         runOnUiThread(() -> {
             switch (broadcastName) {
                 case Events.ACTION_ON_MSG_RECEIVE:
-                    String displayMsg = (String) obj;
-                    receive_msg_content.append(displayMsg + "\r");
+                    if (obj instanceof IceCandidate) {
+                        Log.e(TAGT, "receive IceCandidate swap");
+                        IceCandidate iceCandidate = (IceCandidate) obj;
+                        Log.e(TAGT, "set receive IceCandidate swap");
+                        remotePeerConnection.addIceCandidate(iceCandidate);
+                    } else if (obj instanceof SessionDescription) {
+                        Log.e(TAGT, "receive sdp swap");
+                        SessionDescription sessionDescription = (SessionDescription) obj;
+                        Log.e(TAGT, "set receive sdp swap");
+                        remotePeerConnection.setRemoteDescription(new SdpObserver("把 sdp 给到 remote"), sessionDescription);
+                    }else {
+                        String displayMsg = (String) obj;
+                        peerId = displayMsg.substring(0, 32);
+                        receive_msg_content.append(displayMsg + "\r");
+                    }
+                    break;
+                case Events.ACTION_ON_SDP_OFFER_RECEIVE:
+                    SessionDescription sessionDescription = (SessionDescription) obj;
+                    Log.e(TAGT, "receive sdp offer");
+                    Log.e(TAGT, "set receive sdp offer");
+                    remotePeerConnection.setRemoteDescription(new SdpObserver("把 sdp 给到 remote"), sessionDescription);
+                    Log.e(TAGT, "set answer sdp");
+                    remotePeerConnection.createAnswer(new SdpObserver("创建 remote answer") {
+                        public void onCreateSuccess(SessionDescription sessionDescription1) {
+                            Log.e(TAGT, "set answer sdp success");
+                            remotePeerConnection.setLocalDescription(new SdpObserver("remote 设置本地 sdp"), sessionDescription1);
+                            nioBinder.nioWriteString("remotePeerConnection.createAnswer->onCreateSuccess"+gson.toJson(sessionDescription1));
+                            Log.e(TAGT, "send swap sdp");
+                            nioBinder.sendSwapSdp(sessionDescription1, peerId);
+                        }
+                    }, new MediaConstraints());
                     break;
                 case Events.ACTION_ON_LOGIN:
                     connection_status.setText("connected");

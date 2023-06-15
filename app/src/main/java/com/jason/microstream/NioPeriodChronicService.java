@@ -1,12 +1,15 @@
 package com.jason.microstream;
 
 
+import static com.jason.microstream.MainActivity1_.TAGT;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -14,6 +17,9 @@ import com.google.gson.Gson;
 import com.jason.microstream.localbroadcast.Events;
 import com.jason.microstream.localbroadcast.LocBroadcast;
 import com.jason.microstream.model.msg.DisplayMsg;
+
+import org.webrtc.IceCandidate;
+import org.webrtc.SessionDescription;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -151,27 +157,27 @@ public class NioPeriodChronicService extends Service {
 
     @Deprecated
     private  void nioWriteString(final String ss) {
-        if (mSocketChannel == null) {
-            showError("当前未连接");
-            return;
-        }
-        if (sendHandler != null) {
-            sendHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        int action = 0;
-                        byte[] batchData = getBatchData(action, ss.getBytes(("UTF-8")));
-                        byte[] data = pkgServiceData(batchData);
-                        nioWriteStringImp(data);
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        } else {
-            showError("发送线程被终止");
-        }
+//        if (mSocketChannel == null) {
+//            showError("当前未连接");
+//            return;
+//        }
+//        if (sendHandler != null) {
+//            sendHandler.post(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        int action = 0;
+//                        byte[] batchData = getBatchData(action, ss.getBytes(("UTF-8")));
+//                        byte[] data = pkgServiceData(batchData);
+//                        nioWriteStringImp(data);
+//                    } catch (UnsupportedEncodingException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            });
+//        } else {
+//            showError("发送线程被终止");
+//        }
     }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private void sendNormalMsg(String userId, String sendMsg) {
@@ -196,11 +202,84 @@ public class NioPeriodChronicService extends Service {
         asyncSendImp(capsuleData);
     }
 
+    private static final int MSG_TYPE_SIZE = 4;
+    private static final int MSG_TYPE_TEST = 1;
+    private static final int MSG_TYPE_SWAP_ICE = 2;
+    private static final int MSG_TYPE_SWAP_SDP = 3;
+    private static final int MSG_TYPE_OFFER_SDP = 4;
+    private static final int MSG_TYPE_ID_SIZE = 32;
+    private void sendSwapIceCandidate(IceCandidate iceCandidate, String uid) {
+        if (mSocketChannel == null) {
+            showError("当前未连接");
+            return;
+        }
+        String msgData = uid + new Gson().toJson(iceCandidate);
+        byte[] dataBytes = new byte[0];
+        try {
+            dataBytes = msgData.getBytes(("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] targetDataBytes = new byte[MSG_TYPE_SIZE + dataBytes.length];
+        System.arraycopy(Tool.intToByte4(MSG_TYPE_SWAP_ICE),0,targetDataBytes,0,MSG_TYPE_SIZE);
+        System.arraycopy(dataBytes,0,targetDataBytes,MSG_TYPE_SIZE,dataBytes.length);
+        int action = 0;
+        byte[] batchData = getBatchData(action, targetDataBytes);
+        byte[] capsuleData = pkgServiceData(batchData);
+        asyncSendImp(capsuleData);
+    }
+
+
+    private void sendSwapSdp(SessionDescription sessionDescription, String uid) {
+        if (mSocketChannel == null) {
+            showError("当前未连接");
+            return;
+        }
+        String msgData = uid + new Gson().toJson(sessionDescription);
+        byte[] dataBytes = new byte[0];
+        try {
+            dataBytes = msgData.getBytes(("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] targetDataBytes = new byte[MSG_TYPE_SIZE + dataBytes.length];
+        System.arraycopy(Tool.intToByte4(MSG_TYPE_SWAP_SDP),0,targetDataBytes,0,MSG_TYPE_SIZE);
+        System.arraycopy(dataBytes,0,targetDataBytes,MSG_TYPE_SIZE,dataBytes.length);
+        int action = 0;
+        byte[] batchData = getBatchData(action, targetDataBytes);
+        byte[] capsuleData = pkgServiceData(batchData);
+        Log.e(TAGT, "send swap sdp:asyncSendImp:" + msgData);
+        asyncSendImp(capsuleData);
+    }
+
+    private void sendOfferSdp(SessionDescription sessionDescription, String uid) {
+        if (mSocketChannel == null) {
+            showError("当前未连接");
+            return;
+        }
+        String msgData = uid + new Gson().toJson(sessionDescription);
+        byte[] dataBytes = new byte[0];
+        try {
+            dataBytes = msgData.getBytes(("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        byte[] targetDataBytes = new byte[MSG_TYPE_SIZE + dataBytes.length];
+        System.arraycopy(Tool.intToByte4(MSG_TYPE_OFFER_SDP),0,targetDataBytes,0,MSG_TYPE_SIZE);
+        System.arraycopy(dataBytes,0,targetDataBytes,MSG_TYPE_SIZE,dataBytes.length);
+        int action = 0;
+        byte[] batchData = getBatchData(action, targetDataBytes);
+        byte[] capsuleData = pkgServiceData(batchData);
+        asyncSendImp(capsuleData);
+    }
+
+
     private void asyncSendImp(byte[] capsuleData) {
         if (sendHandler != null) {
             sendHandler.post(new Runnable() {
                 @Override
                 public void run() {
+                    Log.e(TAGT, "send swap sdp:capsuleData:" + new String(capsuleData,StandardCharsets.UTF_8));
                     nioWriteStringImp(capsuleData);
                 }
             });
@@ -220,17 +299,21 @@ public class NioPeriodChronicService extends Service {
         if (mSocketChannel == null) {
             showError("发送失败：连接已断开");
         }
-        try {
-            ByteBuffer byteBuffer = ByteBuffer.wrap(data);
-            mSocketChannel.write(byteBuffer);
-        } catch (IOException e) {
-            if (e.getMessage() != null && e.getMessage().contains("closed")
-                    && e.getMessage().contains("Broken")) {
-                nioDisconnect();
+
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        while (byteBuffer.hasRemaining()) {
+            try {
+                mSocketChannel.write(byteBuffer);
+            } catch (IOException e) {
+                if (e.getMessage() != null && e.getMessage().contains("closed")
+                        && e.getMessage().contains("Broken")) {
+                    nioDisconnect();
+                }
+                showError("发送失败：" + e.getCause() + e.getMessage());
+                e.printStackTrace();
             }
-            showError("发送失败：" + e.getCause() + e.getMessage());
-            e.printStackTrace();
         }
+
     }
 
 //    public static final String imService = "TEST";
@@ -304,9 +387,6 @@ public class NioPeriodChronicService extends Service {
 
 
 
-    public static final int SEND_TYPE_SIZE = 4;
-    public static final int SEND_TYPE_SINGLE = 1;
-    public static final int SEND_TYPE_RTC = 2;
 
     public static final int FROM_UID_SIZE = 32;
 
@@ -346,20 +426,58 @@ public class NioPeriodChronicService extends Service {
                 //TODO:
                 // msgCache.add(content);
                 int sendType = Tool.byte4ToInt(msgModeData, 0);
-                if (sendType == SEND_TYPE_SINGLE) {
+                if (sendType == MSG_TYPE_TEST) {
 
                     byte[] formIdData = new byte[FROM_UID_SIZE];
-                    byte[] msgData = new byte[msgModeData.length - FROM_UID_SIZE - SEND_TYPE_SIZE];
-                    System.arraycopy(msgModeData, SEND_TYPE_SIZE, formIdData,0, formIdData.length);
-                    System.arraycopy(msgModeData, FROM_UID_SIZE + SEND_TYPE_SIZE, msgData, 0, msgData.length);
+                    byte[] msgData = new byte[msgModeData.length - FROM_UID_SIZE - MSG_TYPE_SIZE];
+                    System.arraycopy(msgModeData, MSG_TYPE_SIZE, formIdData,0, formIdData.length);
+                    System.arraycopy(msgModeData, FROM_UID_SIZE + MSG_TYPE_SIZE, msgData, 0, msgData.length);
 
                     String formId = new String(formIdData, "UTF-8");
                     String msgContent = new String(msgData, "UTF-8");
 
                     // msgCache.add(msgContent);
+                    Log.e(TAGT, "data check:" + msgContent);
                     LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_MSG_RECEIVE, formId + msgContent);
-                } else if (sendType == SEND_TYPE_RTC) {
+                } else if (sendType == MSG_TYPE_SWAP_ICE) {
 
+                    byte[] formIdData = new byte[FROM_UID_SIZE];
+                    byte[] msgData = new byte[msgModeData.length - FROM_UID_SIZE - MSG_TYPE_SIZE];
+                    System.arraycopy(msgModeData, MSG_TYPE_SIZE, formIdData,0, formIdData.length);
+                    System.arraycopy(msgModeData, FROM_UID_SIZE + MSG_TYPE_SIZE, msgData, 0, msgData.length);
+
+                    String formId = new String(formIdData, "UTF-8");
+                    String msgContent = new String(msgData, "UTF-8");
+
+                    // msgCache.add(msgContent);
+                    Log.e(TAGT, "data check:" + msgContent);
+                    LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_MSG_RECEIVE, new Gson().fromJson(msgContent, IceCandidate.class));
+                } else if (sendType == MSG_TYPE_SWAP_SDP) {
+
+                    byte[] formIdData = new byte[FROM_UID_SIZE];
+                    byte[] msgData = new byte[msgModeData.length - FROM_UID_SIZE - MSG_TYPE_SIZE];
+                    System.arraycopy(msgModeData, MSG_TYPE_SIZE, formIdData,0, formIdData.length);
+                    System.arraycopy(msgModeData, FROM_UID_SIZE + MSG_TYPE_SIZE, msgData, 0, msgData.length);
+
+                    String formId = new String(formIdData, "UTF-8");
+                    String msgContent = new String(msgData, "UTF-8");
+
+                    // msgCache.add(msgContent);
+                    Log.e(TAGT, "data check:" + msgContent);
+                    LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_MSG_RECEIVE, new Gson().fromJson(msgContent, SessionDescription.class));
+                } else if (sendType == MSG_TYPE_OFFER_SDP) {
+
+                    byte[] formIdData = new byte[FROM_UID_SIZE];
+                    byte[] msgData = new byte[msgModeData.length - FROM_UID_SIZE - MSG_TYPE_SIZE];
+                    System.arraycopy(msgModeData, MSG_TYPE_SIZE, formIdData,0, formIdData.length);
+                    System.arraycopy(msgModeData, FROM_UID_SIZE + MSG_TYPE_SIZE, msgData, 0, msgData.length);
+
+                    String formId = new String(formIdData, "UTF-8");
+                    String msgContent = new String(msgData, "UTF-8");
+
+                    // msgCache.add(msgContent);
+                    Log.e(TAGT, "data check:" + msgContent);
+                    LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_SDP_OFFER_RECEIVE, new Gson().fromJson(msgContent, SessionDescription.class));
                 }
             }
 
@@ -413,7 +531,8 @@ public class NioPeriodChronicService extends Service {
     public static final long MAX_CAPSULE = 1048576000;//1024*1024*100=100MB
     private byte[] cacheCapsule(SocketChannel socketChannel) {
         int capsuleLength = 0;
-        byte[] cacheCapsule;
+        byte[] cacheCapsule = new byte[0];
+        int cacheCursor = 0;
 
         for (; ; ) {
             try {
@@ -429,11 +548,25 @@ public class NioPeriodChronicService extends Service {
                         return null;
                     }
                     capsuleLength = tempCapsuleLength;
+                    cacheCapsule = new byte[capsuleLength];
                 } else {
-                    ByteBuffer buffer = ByteBuffer.allocate(capsuleLength);
-                    int readedByteCount = socketChannel.read(buffer);
-                    cacheCapsule = buffer.array();
-                    break;
+                    if (cacheCursor == 0) {
+                        ByteBuffer buffer = ByteBuffer.allocate(capsuleLength);
+                        int readedByteCount = socketChannel.read(buffer);
+                        System.arraycopy(buffer.array(), 0, cacheCapsule, 0,readedByteCount);
+                        cacheCursor = readedByteCount;
+                        if (capsuleLength == readedByteCount) {
+                            break;
+                        }
+                    } else {
+                        ByteBuffer buffer = ByteBuffer.allocate(capsuleLength-cacheCursor);
+                        int readedByteCount = socketChannel.read(buffer);
+                        System.arraycopy(buffer.array(), 0, cacheCapsule, cacheCursor,readedByteCount);
+                        cacheCursor = cacheCursor + readedByteCount;
+                        if (capsuleLength == readedByteCount) {
+                            break;
+                        }
+                    }
                 }
             } catch (IOException e) {
                 if (e.getMessage() != null && e.getMessage().contains("closed")
@@ -481,6 +614,15 @@ public class NioPeriodChronicService extends Service {
         public void sendNormalMsg(String user, String sendMsg) {
             NioPeriodChronicService.this.sendNormalMsg(user,sendMsg);
         }
+        public void sendSwapIceCandidate(IceCandidate iceCandidate,String uid) {
+            NioPeriodChronicService.this.sendSwapIceCandidate(iceCandidate,uid);
+        }
+        public void sendSwapSdp(SessionDescription sessionDescription,String uid) {
+            NioPeriodChronicService.this.sendSwapSdp(sessionDescription,uid);
+        }
+        public void sendOfferSdp(SessionDescription sessionDescription,String uid) {
+            NioPeriodChronicService.this.sendOfferSdp(sessionDescription,uid);
+        }
         public void nioConnect(String host,String port,String uid,String token) {
             NioPeriodChronicService.this.nioConnect( host, port,uid,token);
         }
@@ -491,8 +633,9 @@ public class NioPeriodChronicService extends Service {
             return NioPeriodChronicService.this.isConnected();
         }
     }
-    private void showError(String err) {
 
+    private void showError(String err) {
+        Log.e(TAGT, "error:" + err);
     }
 
 }
