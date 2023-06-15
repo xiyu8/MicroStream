@@ -248,7 +248,6 @@ public class NioPeriodChronicService extends Service {
         int action = 0;
         byte[] batchData = getBatchData(action, targetDataBytes);
         byte[] capsuleData = pkgServiceData(batchData);
-        Log.e(TAGT, "send swap sdp:asyncSendImp:" + msgData);
         asyncSendImp(capsuleData);
     }
 
@@ -279,7 +278,6 @@ public class NioPeriodChronicService extends Service {
             sendHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Log.e(TAGT, "send swap sdp:capsuleData:" + new String(capsuleData,StandardCharsets.UTF_8));
                     nioWriteStringImp(capsuleData);
                 }
             });
@@ -313,7 +311,6 @@ public class NioPeriodChronicService extends Service {
                 e.printStackTrace();
             }
         }
-
     }
 
 //    public static final String imService = "TEST";
@@ -563,7 +560,7 @@ public class NioPeriodChronicService extends Service {
                         int readedByteCount = socketChannel.read(buffer);
                         System.arraycopy(buffer.array(), 0, cacheCapsule, cacheCursor,readedByteCount);
                         cacheCursor = cacheCursor + readedByteCount;
-                        if (capsuleLength == readedByteCount) {
+                        if (capsuleLength == cacheCursor) {
                             break;
                         }
                     }
