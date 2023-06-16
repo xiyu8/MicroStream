@@ -531,34 +531,62 @@ public class NioPeriodChronicService extends Service {
         byte[] cacheCapsule = new byte[0];
         int cacheCursor = 0;
 
+        byte[] cacheLength = new byte[4];
+        int cacheLengthCursor = 0;
+
         for (; ; ) {
             try {
                 if (capsuleLength == 0) {
-                    ByteBuffer buffer = ByteBuffer.allocate(4);
-                    int readedCount = socketChannel.read(buffer);
-                    if (readedCount != 4) { //data exception
-                        //TODO: use read consor,for cache read,to get integrale data
-                        return null;
+                    for (; ; ) {
+                        ByteBuffer buffer = ByteBuffer.allocate(4 - cacheLengthCursor);
+                        int readedCount = socketChannel.read(buffer);
+                        if (readedCount <= 0) {
+                            if (readedCount == 0) {
+                                continue;
+                            }
+                            showError("readedCount <= 0");
+                            return null;
+                        }
+                        System.arraycopy(buffer.array(), 0, cacheLength, cacheLengthCursor, readedCount);
+                        cacheLengthCursor += readedCount;
+                        if (cacheLengthCursor == 4) {
+                            int tempCapsuleLength = Tool.byte4ToInt(cacheLength, 0);
+                            if (tempCapsuleLength > MAX_CAPSULE) { //data exception
+                                showError("tempCapsuleLength > MAX_CAPSULE：readedCount"+readedCount+"tempCapsuleLength"+tempCapsuleLength);
+                                return null;
+                            }
+                            capsuleLength = tempCapsuleLength;
+                            cacheCapsule = new byte[capsuleLength];
+                            break;
+                        }
                     }
-                    int tempCapsuleLength =  Tool.byte4ToInt(buffer.array(), 0);
-                    if (tempCapsuleLength > MAX_CAPSULE) { //data exception
-                        return null;
-                    }
-                    capsuleLength = tempCapsuleLength;
-                    cacheCapsule = new byte[capsuleLength];
                 } else {
                     if (cacheCursor == 0) {
                         ByteBuffer buffer = ByteBuffer.allocate(capsuleLength);
                         int readedByteCount = socketChannel.read(buffer);
-                        System.arraycopy(buffer.array(), 0, cacheCapsule, 0,readedByteCount);
+                        if (readedByteCount <= 0) {
+                            if (readedByteCount == 0) {
+                                continue;
+                            }
+                            showError("readedByteCount <= 0");
+                            return null;
+                        }
+                        System.arraycopy(buffer.array(), 0, cacheCapsule, 0, readedByteCount);
                         cacheCursor = readedByteCount;
                         if (capsuleLength == readedByteCount) {
                             break;
                         }
                     } else {
-                        ByteBuffer buffer = ByteBuffer.allocate(capsuleLength-cacheCursor);
+                        ByteBuffer buffer = ByteBuffer.allocate(capsuleLength - cacheCursor);
                         int readedByteCount = socketChannel.read(buffer);
-                        System.arraycopy(buffer.array(), 0, cacheCapsule, cacheCursor,readedByteCount);
+                        if (readedByteCount <= 0) {
+                            if (readedByteCount == 0) {
+                                continue;
+                            }
+                            showError("readedByteCount <= 0");
+                            return null;
+                        }
+                        System.arraycopy(buffer.array(), 0, cacheCapsule, cacheCursor, readedByteCount);
                         cacheCursor = cacheCursor + readedByteCount;
                         if (capsuleLength == cacheCursor) {
                             break;
@@ -568,8 +596,10 @@ public class NioPeriodChronicService extends Service {
             } catch (IOException e) {
                 if (e.getMessage() != null && e.getMessage().contains("closed")
                         && e.getMessage().contains("Broken")) {
+                    showError("read exception" + e.getMessage());
                     return null;
                 }
+                showError("read exception");
                 e.printStackTrace();
             }
         }
