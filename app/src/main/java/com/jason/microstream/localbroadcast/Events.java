@@ -7,8 +7,12 @@ package com.jason.microstream.localbroadcast;
 public interface Events {
     String ACTION_ON_MSG_RECEIVE = "action_on_msg_receive";
     String ACTION_ON_SDP_OFFER_RECEIVE = "action_on_sdp_offer_receive";
+
+
     String ACTION_ON_LOGIN = "action_on_login";
+    String ACTION_ON_LOGIN_FAIL = "action_on_login_fail";
     String ACTION_ON_LOGOUT = "action_on_logout";
+    String ACTION_ON_INIT_FAIL = "action_on_init_fail";
 
 
 }

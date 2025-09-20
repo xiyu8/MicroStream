@@ -7,4 +7,75 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+
+
+    <color name="click_able_blue">#2C68FF</color>
+
+    <color name="ms_white">#FFFFFFFF</color>
+    <color name="ms_theme">#319EEC</color>
+    <color name="ms_theme_lt">#41aEfC</color>
+    <color name="ms_warn">#DD5D1D</color>
+    <color name="ms_text">#FF262A30</color>
+    <color name="ms_text_sub_hint">#959BA3</color>
+    <color name="ms_bg">#F7F8F9</color>
+    <color name="ms_stroke_gray">#CBCFD6</color>
+    <color name="ms_hint_gray">#FFCBCFD6</color>
+
+    <color name="ms_caution">#DD5D1D</color>
+
+    <color name="c_gray2">#E9ECF0</color>
+    <color name="c_brand">#319EEC</color>
+    <color name="c_white">#FFFFFF</color>
+    <color name="c_black">#000000</color>
+<!--    <color name="c_gray1">#F7F8F9</color>-->
+    <color name="c_gray1">#eeeeee</color>
+    <color name="c_gray4">#959BA3</color>
+    <color name="c_divider">#E9ECF0</color>
+    <color name="c_dark">#262A30</color>
+    <!--默认应用色-->
+    <color name="c_a_green">#00DC99</color>
+    <color name="c_a_green_15">#2100DC99</color>
+    <color name="c_a_green_50">#8000DC99</color>
+    <color name="c_a_green1">#A2DBA7</color>
+    <color name="c_a_blue">#0088FA</color>
+    <color name="c_a_blue_15">#250088FA</color>
+    <color name="c_a_blue_20">#330088FA</color>
+    <color name="c_a_blue_30">#4c0088FA</color>
+    <color name="c_a_blue_50">#800088FA</color>
+    <color name="c_a_blue_80">#CC0088FA</color>
+    <color name="c_a_blue1">#95C1F8</color>
+    <color name="c_a_yellow">#F4A022</color>
+    <color name="c_a_yellow_10">#19F4A022</color>
+    <color name="c_a_yellow_15">#21F4A022</color>
+    <color name="c_a_yellow1">#F4D5A0</color>
+    <color name="c_a_yellow2">#FAC022</color>
+    <color name="c_a_red">#FF5D66</color>
+    <color name="c_a_red_15">#21FF5D66</color>
+    <color name="c_a_red_70">#B2FF5D66</color>
+    <color name="c_a_violet">#A487FF</color>
+    <color name="c_a_orange">#FF9222</color>
+    <color name="c_a_orange_15">#25FF9222</color>
+    <color name="c_a_orange_70">#B2FF9222</color>
+    <color name="c_a_cyan">#1DD1EE</color>
+
+    <color name="c_link">@color/c_a_blue</color>
+    <color name="c_success">@color/c_a_green</color>
+    <color name="c_tips">#FFFDE9</color>
+    <color name="c_caution">@color/c_a_red</color>
+
+    <color name="sh_white">#FFFFFFFF</color>
+    <color name="sh_theme">#319EEC</color>
+    <color name="sh_warn">#DD5D1D</color>
+    <color name="sh_text">#FF262A30</color>
+    <color name="sh_text_sub_hint">#959BA3</color>
+    <color name="sh_bg">#F7F8F9</color>
+    <color name="sh_stroke_gray">#CBCFD6</color>
+    <color name="sh_hint_gray">#FFCBCFD6</color>
+    <color name="sh_caution">#DD5D1D</color>
+
+    <color name="sh_transparent">#00000000</color>
+    <color name="transparent">#00000000</color>
+
+
 </resources>

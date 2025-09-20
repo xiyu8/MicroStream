@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:background="@drawable/shape_loading_dailog_hint_bg"
+        android:padding="10dp"
+        android:id="@+id/dialog_loading_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center">
+        <ProgressBar
+            android:id="@+id/loading_progress"
+            android:indeterminateTint="#2000574B"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/dialog_loading_progress"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:background="@drawable/shape_loading_dailog_hint_bg"
+        android:id="@+id/dialog_succeed_view"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:padding="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/dialog_succeed_hint_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:text="加载完成"/>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:background="@drawable/shape_loading_dailog_hint_bg"
+        android:id="@+id/dialog_fail_view"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/dialog_fail_hint_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:text="加载失败"/>
+    </LinearLayout>
+
+
+</FrameLayout>

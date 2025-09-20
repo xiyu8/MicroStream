@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/error_list_ll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+    <View
+        android:id="@+id/margin_top_inflate"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="#00000000" />
+
+    <LinearLayout
+        android:id="@+id/error_area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/margin_top_inflate"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="@color/c_white"
+        android:clickable="true"
+        >
+
+        <ImageView
+            android:id="@+id/error_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            />
+
+        <TextView
+            android:id="@+id/error_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="网络异常"
+            android:textColor="#515A64"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/error_hint_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center_horizontal"
+            android:text=""
+            android:textColor="#AAAAAA"
+            android:textSize="14sp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/refresh_reload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginBottom="10dp"
+            android:drawableLeft="@drawable/reload"
+            android:drawablePadding="5dp"
+            android:gravity="center_horizontal"
+            android:text="点击重新加载"
+            android:textColor="#2C68FF" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,37 @@
+package com.jason.microstream.ui.compenent.avatar;
+
+import android.content.Context;
+import android.util.AttributeSet;
+import android.widget.FrameLayout;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.jason.microstream.ui.conversation.avatar.GroupUser;
+
+import java.util.List;
+
+public class AvatarImageView  extends FrameLayout {
+    public AvatarImageView(@NonNull Context context) {
+        super(context);
+    }
+
+    public AvatarImageView(@NonNull Context context, @Nullable AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public AvatarImageView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+    }
+
+    public AvatarImageView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+    }
+
+
+
+    public void setAvatar(String cid, int typeGroup, boolean b, List<GroupUser> memberAvatars, String chatName) {
+
+    }
+
+}

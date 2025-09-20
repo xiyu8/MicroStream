@@ -33,6 +33,17 @@ public class Tool {
         return targets;
     }
 
+    public static long byte8ToLong(byte[] input,int offset) {
+        boolean littleEndian = false;
+        long value=0;
+        // 循环读取每个字节通过移位运算完成long的8个字节拼装
+        for(int  count=0;count<8;++count){
+            int shift=(littleEndian?count:(7-count))<<3;
+            value |=((long)0xff<< shift) & ((long)input[offset+count] << shift);
+        }
+        return value;
+    }
+
     /**
      * short整数转换为2字节的byte数组
      *

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.hardware.camera2.CameraManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -20,6 +21,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.gson.Gson;
+import com.jason.microstream.core.im.imconpenent.ImService;
+import com.jason.microstream.core.im.tup.Coder;
 import com.jason.microstream.localbroadcast.Events;
 import com.jason.microstream.localbroadcast.LocBroadcast;
 import com.jason.microstream.localbroadcast.LocBroadcastReceiver;
@@ -51,6 +54,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInboundHandler;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelOutboundHandler;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.DefaultPromise;
+
 
 /**
  *
@@ -63,14 +80,24 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
     public static final String TAGT = "VideoStep";
     public final String VIDEO_TRACK_ID = "ARDAMSv0";
     public final String AUDIO_TRACK_ID = "ARDAMSa0";
-    public final String[] events = {Events.ACTION_ON_MSG_RECEIVE, Events.ACTION_ON_SDP_OFFER_RECEIVE, Events.ACTION_ON_LOGIN, Events.ACTION_ON_LOGOUT};
+    public final String[] EVENTS = {Events.ACTION_ON_MSG_RECEIVE, Events.ACTION_ON_SDP_OFFER_RECEIVE, Events.ACTION_ON_LOGIN, Events.ACTION_ON_LOGOUT};
     public static final Map<String, String> userNameIdMap = new HashMap<String, String>() {{
-        put("user1", "11111111111111111111111111111111");
-        put("user2", "11111111111111111111111111111112");
+        put("user1", "11111111111111111111111111111112");
+        put("user2", "11111111111111111111111111111113");
+        put("user3", "11111111111111111111111111111114");
+        put("user4", "11111111111111111111111111111115");
+        put("user5", "11111111111111111111111111111116");
+        put("user6", "11111111111111111111111111111117");
+        put("user7", "11111111111111111111111111111118");
     }};
     public static final Map<String, String> userIdNameMap = new HashMap<String, String>() {{
-        put("11111111111111111111111111111111", "user1");
-        put("11111111111111111111111111111112", "user2");
+        put("11111111111111111111111111111112", "user1");
+        put("11111111111111111111111111111113", "user2");
+        put("11111111111111111111111111111114", "user3");
+        put("11111111111111111111111111111115", "user4");
+        put("11111111111111111111111111111116", "user5");
+        put("11111111111111111111111111111117", "user6");
+        put("11111111111111111111111111111118", "user7");
     }};
 
     @Override
@@ -81,42 +108,42 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
 //        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.CAMERA},
 //                111);
 
-        LocBroadcast.getInstance().registerBroadcast(this, events);
+        LocBroadcast.getInstance().registerBroadcast(this, EVENTS);
 
-        nioConnect();
+//        nioConnect();
         initView();
         initData();
     }
 
-    private void nioConnect() {
-//        startService(new Intent(this, NioPeriodChronicService.class));
-        bindService(new Intent(this, NioPeriodChronicService.class), new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                nioBinder = (NioPeriodChronicService.NioBinder) service;
-//                String host = "192.168.137.36";
-//                String port = "8887";
-//                String uid = "user1";
-//                String token = "user1";
-//                nioBinder.registerNIoSelector(MainActivity1_.this);
-//                nioBinder.initWriteThread();
-//                nioBinder.nioConnect(host,port,uid,token);
-
-                if (nioBinder.isConnected()) {
-                    connection_status.setText("connected");
-                } else {
-                    connection_status.setText("unconnected");
-                }
-            }
-            @Override
-            public void onServiceDisconnected(ComponentName name) {}
-        }, Context.BIND_AUTO_CREATE);
-    }
+//    private void nioConnect() {
+////        startService(new Intent(this, NioPeriodChronicService.class));
+//        bindService(new Intent(this, NioPeriodChronicService.class), new ServiceConnection() {
+//            @Override
+//            public void onServiceConnected(ComponentName name, IBinder service) {
+//                nioBinder = (NioPeriodChronicService.NioBinder) service;
+////                String host = "192.168.137.36";
+////                String port = "8887";
+////                String uid = "user1";
+////                String token = "user1";
+////                nioBinder.registerNIoSelector(MainActivity1_.this);
+////                nioBinder.initWriteThread();
+////                nioBinder.nioConnect(host,port,uid,token);
+//
+//                if (nioBinder.isConnected()) {
+//                    connection_status.setText("connected");
+//                } else {
+//                    connection_status.setText("unconnected");
+//                }
+//            }
+//            @Override
+//            public void onServiceDisconnected(ComponentName name) {}
+//        }, Context.BIND_AUTO_CREATE);
+//    }
 
     Gson gson;
 
     int resumeCount = 0;
-    NioPeriodChronicService.NioBinder nioBinder;
+//    NioPeriodChronicService.NioBinder nioBinder;
     @Override
     protected void onResume() {
         super.onResume();
@@ -158,6 +185,20 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
 //        surfaceHolder = mSurfaceView.getHolder();
 //        surfaceHolder.setKeepScreenOn(true);
 //        surfaceHolder.addCallback(this);
+
+        if (Build.BRAND.toLowerCase().equals("samsung")
+//                || Build.BRAND.toLowerCase().equals("redmi")
+//                || Build.BRAND.toLowerCase().equals("vivo")
+        ) {
+            send_user.setText("user2");
+        } else if (Build.BRAND.toLowerCase().equals("honor")
+//                ||Build.BRAND.toLowerCase().equals("huawei")
+                     ) {
+            send_user.setText("user1");
+        } else {
+            send_user.setText("user3");
+        }
+
 
     }
 
@@ -254,7 +295,7 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
     int commandCount = 0;
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.button:
+            case R.id.video_step1:
                 if (commandCount == 0) {
                     B0(); // 下行流监听：将 localPeerConnection 提供给 其它端连接
                     remotePeerConnection.addStream(localMediaStream); //上行流添加1
@@ -296,15 +337,86 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
                 Log.e(TAGT, "onIceCandidate:" + iceCount);
                 iceCount++;
                 remotePeerConnection.addIceCandidate(iceCandidate);
-                nioBinder.nioWriteString("remotePeerConnection->onIceCandidate"+gson.toJson(iceCandidate));
+//                nioBinder.nioWriteString("remotePeerConnection->onIceCandidate"+gson.toJson(iceCandidate));
                 Log.e(TAGT, "onIceCandidate send swap");
-                nioBinder.sendSwapIceCandidate(iceCandidate,peerId);
+//                nioBinder.sendSwapIceCandidate(iceCandidate,peerId);
+                ImService.getIm().sendVideoCmd(iceCandidate,peerId, Coder.MSG_TYPE_SWAP_ICE);
 
             }
         });
 
     }
 
+//    private void testNy() {
+//        //创建两个线程组 boosGroup、workerGroup
+//        EventLoopGroup bossGroup = new NioEventLoopGroup();
+//        EventLoopGroup workerGroup = new NioEventLoopGroup();
+//        try {
+//            //创建服务端的启动对象，设置参数
+//            ServerBootstrap bootstrap = new ServerBootstrap();
+//            //设置两个线程组boosGroup和workerGroup
+//            bootstrap.group(bossGroup, workerGroup)
+//                    //设置服务端通道实现类型
+//                    .channel(NioServerSocketChannel.class)
+//                    //设置线程队列得到连接个数
+//                    .option(ChannelOption.SO_BACKLOG, 128)
+//                    //设置保持活动连接状态
+//                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+//                    //使用匿名内部类的形式初始化通道对象
+//                    .childHandler(new ChannelInitializer<SocketChannel>() {
+//                        @Override
+//                        protected void initChannel(SocketChannel socketChannel) throws Exception {
+//                            //给pipeline管道设置处理器
+//                            socketChannel.pipeline().addLast(new MyServerHandler());
+//                        }
+//                    });//给workerGroup的EventLoop对应的管道设置处理器
+//            System.out.println("java技术爱好者的服务端已经准备就绪...");
+//            //绑定端口号，启动服务端
+//            ChannelFuture channelFuture = bootstrap.bind(6666).sync();
+//            //对关闭通道进行监听
+//            channelFuture.channel().closeFuture().sync();
+//        } catch (InterruptedException e) {
+//            throw new RuntimeException(e);
+//        } finally {
+//            bossGroup.shutdownGracefully();
+//            workerGroup.shutdownGracefully();
+//        }
+//    }
+//    private void testNy2() {
+//        DefaultPromise defaultPromise;
+//        defaultPromise.sync();
+//        ChannelInboundHandler;
+//        ChannelOutboundHandler;
+//        NioEventLoopGroup eventExecutors = new NioEventLoopGroup();
+//        try {
+//            //创建bootstrap对象，配置参数
+//            Bootstrap bootstrap = new Bootstrap();
+//            //设置线程组
+//            bootstrap.group(eventExecutors)
+//                    //设置客户端的通道实现类型
+//                    .channel(NioSocketChannel.class)
+//                    //使用匿名内部类初始化通道
+//                    .handler(new ChannelInitializer<SocketChannel>() {
+//                        @Override
+//                        protected void initChannel(SocketChannel ch) throws Exception {
+//                            //添加客户端通道的处理器
+//                            ch.pipeline().addLast(new MyClientHandler());
+//                        }
+//                    });
+//            System.out.println("客户端准备就绪，随时可以起飞~");
+//            //连接服务端
+//            ChannelFuture channelFuture = bootstrap.connect("127.0.0.1", 6666).sync();
+//            //对通道关闭进行监听
+//            try {
+//                channelFuture.channel().closeFuture().sync();
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        } finally {
+//            //关闭线程组
+//            eventExecutors.shutdownGracefully();
+//        }
+//    }
 
     private void B1() { //上行流添加2 触发上传
         Log.e(TAGT, "upstream offered");
@@ -317,9 +429,10 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
                         super.onCreateSuccess(sessionDescription);
                     }
                 }, sessionDescription);
-                nioBinder.nioWriteString("remotePeerConnection.createOffer->onCreateSuccess"+gson.toJson(sessionDescription));;
+//                nioBinder.nioWriteString("remotePeerConnection.createOffer->onCreateSuccess"+gson.toJson(sessionDescription));;
                 Log.e(TAGT, "upstream offer sdp");
-                nioBinder.sendOfferSdp(sessionDescription,peerId);
+//                nioBinder.sendOfferSdp(sessionDescription,peerId);
+                ImService.getIm().sendVideoCmd(sessionDescription,peerId, Coder.MSG_TYPE_OFFER_SDP);
             }
         }, new MediaConstraints());
     }
@@ -336,7 +449,7 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
                 public void onCreateSuccess(SessionDescription sessionDescription1) {
                     Log.e(TAGT, "remotePeerConnection.createAnswer->onCreateSuccess");
                     remotePeerConnection.setLocalDescription(new SdpObserver("remote 设置本地 sdp"), sessionDescription1);
-                    nioBinder.nioWriteString("remotePeerConnection.createAnswer->onCreateSuccess"+gson.toJson(sessionDescription1));
+//                    nioBinder.nioWriteString("remotePeerConnection.createAnswer->onCreateSuccess"+gson.toJson(sessionDescription1));
 
 
 
@@ -389,9 +502,6 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
         return null;
     }
 
-    public void showConnection(String ip, String port, String user) {
-
-    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     String peerId;
@@ -426,9 +536,11 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
                         public void onCreateSuccess(SessionDescription sessionDescription1) {
                             Log.e(TAGT, "set answer sdp success");
                             remotePeerConnection.setLocalDescription(new SdpObserver("remote 设置本地 sdp"), sessionDescription1);
-                            nioBinder.nioWriteString("remotePeerConnection.createAnswer->onCreateSuccess"+gson.toJson(sessionDescription1));
+//                            nioBinder.nioWriteString("remotePeerConnection.createAnswer->onCreateSuccess"+gson.toJson(sessionDescription1));
                             Log.e(TAGT, "send swap sdp");
-                            nioBinder.sendSwapSdp(sessionDescription1, peerId);
+//                            nioBinder.sendSwapSdp(sessionDescription1, peerId);
+                            ImService.getIm().sendVideoCmd(sessionDescription1,peerId, Coder.MSG_TYPE_SWAP_SDP);
+
                         }
                     }, new MediaConstraints());
                     break;
@@ -451,7 +563,7 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
             return;
         }
 
-        nioBinder.sendNormalMsg(userNameIdMap.get(user),sendMsg);
-
+        ImService.getIm().sendTest(userNameIdMap.get(user),sendMsg);
     }
+
 }

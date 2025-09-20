@@ -3,13 +3,32 @@ package com.jason.microstream.model;
 public class User {
     private String uid;
 
-    private String name;
+    private String username;
 
-    private String pwd;
+    private String password;
 
     private String type;
 
-    private String token;
+    public User() {
+    }
+
+    public User(String uid, String name) {
+        this.uid = uid;
+        this.username = name;
+    }
+
+    public User(String uid, String name, String pwd) {
+        this.uid = uid;
+        this.username = name;
+        this.password = pwd;
+    }
+
+    public User(String uid, String name, String pwd, String type) {
+        this.uid = uid;
+        this.username = name;
+        this.password = pwd;
+        this.type = type;
+    }
 
     public String getUid() {
         return uid;
@@ -20,19 +39,19 @@ public class User {
     }
 
     public String getName() {
-        return name;
+        return username;
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.username = name;
     }
 
     public String getPwd() {
-        return pwd;
+        return username;
     }
 
     public void setPwd(String pwd) {
-        this.pwd = pwd;
+        this.username = pwd;
     }
 
     public String getType() {
@@ -43,11 +62,5 @@ public class User {
         this.type = type;
     }
 
-    public String getToken() {
-        return token;
-    }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
 }

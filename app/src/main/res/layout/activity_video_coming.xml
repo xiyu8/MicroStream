@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/call_coming_bg"
+    android:paddingTop="25dp"
+    >
+
+
+    <ImageView
+        android:id="@+id/mini_fi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="20dp"
+        android:textColor="@color/c_white"
+        android:textSize="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:onClick="onClick"
+        />
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="160dp"
+        android:orientation="vertical">
+
+        <ImageView
+            android:id="@+id/opposite_avatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:id="@+id/opposite_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/opposite_avatar"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:text=""
+            android:textColor="@color/c_white"
+            android:textSize="22sp" />
+
+
+        <TextView
+            android:id="@+id/invite_call_type_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/opposite_name"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="5dp"
+            android:text="邀请您进行视频通话"
+            android:textSize="16sp"
+            android:textColor="@color/c_gray2" />
+    </RelativeLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="108dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_above="@id/hang_up_area"
+        android:gravity="center"
+        android:layout_alignRight="@id/answer_call_area"
+        >
+        <!--        <LinearLayout-->
+        <!--            android:layout_width="110dp"-->
+        <!--            android:layout_height="108dp"-->
+        <!--            android:gravity="center"-->
+        <!--            android:orientation="vertical">-->
+
+        <!--            <com.shinemo.base.core.widget.fonticon.FontIconWidget-->
+        <!--                android:id="@+id/audio_mute"-->
+        <!--                android:layout_width="70dp"-->
+        <!--                android:layout_height="70dp"-->
+        <!--                android:clickable="true"-->
+        <!--                android:gravity="center"-->
+        <!--                android:text="@string/icon_font_jingyin1"-->
+        <!--                android:textColor="@color/c_white"-->
+        <!--                android:textSize="20dp"-->
+        <!--                app:fiw_iconBackgroundColor="@color/c_dark_70"-->
+        <!--                app:fiw_shape="CIRCULAR" />-->
+
+        <!--            <TextView-->
+        <!--                android:layout_width="wrap_content"-->
+        <!--                android:layout_height="wrap_content"-->
+        <!--                android:layout_marginTop="5dp"-->
+        <!--                android:text="@string/video_meet_microphone_1"-->
+        <!--                android:textColor="@color/c_gray1"-->
+        <!--                android:textSize="12sp" />-->
+        <!--        </LinearLayout>-->
+
+        <LinearLayout
+            android:id="@+id/video_mute_area"
+            android:layout_width="108dp"
+            android:layout_height="108dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp">
+
+            <ImageView
+                android:id="@+id/video_mute"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:onClick="onClick"
+                android:gravity="center"
+                android:textColor="@color/c_white"
+                android:textSize="20dp" />
+
+            <TextView
+                android:id="@+id/video_mute_tip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/c_gray1"
+                android:textSize="12sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/hang_up_area"
+        android:layout_width="108dp"
+        android:layout_height="108dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="46dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:onClick="onClick"
+        android:layout_marginBottom="30dp"
+        >
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/call_hang_up" />
+
+        <!--        android:src="@drawable/huangup_bg"-->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="挂断"
+            android:textColor="@color/c_white"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/answer_call_area"
+        android:layout_width="108dp"
+        android:layout_height="108dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="46dp"
+        android:gravity="center"
+        android:onClick="onClick"
+        android:orientation="vertical"
+        android:layout_marginBottom="30dp">
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@drawable/call_accept" />
+
+        <!--        android:src="@drawable/receive_video_bg"-->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="接听"
+            android:textColor="@color/c_white"
+            android:textSize="12sp" />
+    </LinearLayout>
+</RelativeLayout>
