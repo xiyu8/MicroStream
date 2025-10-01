@@ -13,19 +13,23 @@ import androidx.annotation.NonNull;
 import com.gyf.immersionbar.ImmersionBar;
 import com.jason.microstream.account.AccountManager;
 import com.jason.microstream.core.im.imconpenent.ImService;
+import com.jason.microstream.core.im.tup.data.SendNode;
 import com.jason.microstream.model.User;
 import com.jason.microstream.tool.CommonSharePrefsManager;
 import com.jason.microstream.tool.TextUtil;
+import com.jason.microstream.tool.log.LogTool;
 import com.jason.microstream.ui.base.BasicActivity;
 import com.jason.microstream.ui.base.BasicPresenter;
 import com.jason.microstream.ui.main.MainActivity;
 import com.permissionx.guolindev.PermissionX;
 import com.permissionx.guolindev.callback.RequestCallback;
 
+import java.io.IOException;
 import java.util.List;
 //import com.tbruyelle.rxpermissions3.RxPermissions;
 
 public class SplashActivity extends BasicActivity {
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +57,17 @@ public class SplashActivity extends BasicActivity {
 //            startActivity(new Intent(this, MainActivity1_.class));
 //            finish();
 
-            ImService.getIm().auth(AccountManager.get().getToken(), AccountManager.get().getUid());
+            ImService.getIm().auth(AccountManager.get().getToken(), AccountManager.get().getUid(), new ImService.AuthResult() {
+                @Override
+                public void onAuthSuccess() {
+                    LogTool.f(SplashActivity.this.TAG, "登录成功");
+                }
+
+                @Override
+                public void onAuthFail() {
+                    LogTool.f(SplashActivity.this.TAG, "登录失败！！！");
+                }
+            });
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -66,7 +80,6 @@ public class SplashActivity extends BasicActivity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-
 //                    Intent intent = new Intent(SplashActivity.this, MainActivity.class);
                     Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
                     startActivity(intent, anmiBundle);

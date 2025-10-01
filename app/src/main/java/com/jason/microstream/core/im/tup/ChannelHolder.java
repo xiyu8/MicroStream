@@ -1,6 +1,8 @@
 package com.jason.microstream.core.im.tup;
 
+import com.jason.microstream.account.AccountManager;
 import com.jason.microstream.core.im.imconpenent.ImService;
+import com.jason.microstream.core.im.tup.channelcontext.ChannelContext;
 import com.jason.microstream.tool.log.LogTool;
 
 import java.io.IOException;
@@ -25,37 +27,73 @@ public class ChannelHolder implements Callable<Integer> {
 
     ExecutorService executor;
     SocketChannel mSocketChannel;
-    Selector selector;
-    Dispatcher dispatcher;
-    Receiver receiver;
+    private final Selector selector;
 
-    boolean isConnected = false;
-    boolean isCheckChannel = false;
-    boolean isAuth = false;
+    private Demultiplexer demultiplexer;
 
-    public ChannelHolder() {
+    private final String host, port;
+    private ChannelContext channelContext;
+
+    public ChannelHolder(String host, String port) {
+        this.host = host;
+        this.port = port;
         this.executor = Executors.newCachedThreadPool();
+        try {
+            selector = Selector.open();
+        } catch (IOException e) {
+            LogTool.e(TAG, "ChannelHolder connect Selector.open() fail!");
+            throw new RuntimeException(e);
+        }
     }
 
-    String host, port, uid, token;
-    public void connect() {
-        host = dispatcher.getCore().getHost();
-        port = dispatcher.getCore().getPort();
-        uid = ImService.getIm().getUid();
-        token = ImService.getIm().getToken();
+
+    //?????
+    public void nioDisconnect() {
+//        host = null;
+//        port = null;
+        if (mSocketChannel != null) {
+            if (mSocketChannel.isConnected()) {
+                try {
+                    mSocketChannel.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    mSocketChannel.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        channelContext = null;
+        isConnected = false;
+    }
+
+    public void setDemultiplexer(Demultiplexer demultiplexer) {
+        this.demultiplexer = demultiplexer;
+    }
+
+    public void setContext(ChannelContext channelContext) {
+        this.channelContext = channelContext;
+    }
+
+    public ChannelContext getContext() {
+        return channelContext;
+    }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    public int connectSync() {
+        if (host == null || port == null) {
+             throw new RuntimeException("MSIM connect without host!!!");
+        }
 
         int ret = registerNioSelector();
-        if (ret != 0) {
-            dispatcher.senderException(Dispatcher.SendCmd.SOCKET_OPEN_FAIL);
-            return;
-        }
+        if (ret != 0) return ret;
         ret = nioConnect();
-        if (ret != 0) {
-            dispatcher.senderException(Dispatcher.SendCmd.SOCKET_CONNECT_FAIL);
-        } else {
-            dispatcher.connectReseted(mSocketChannel, selector);
-        }
-
+        return ret;
     }
 
     //step1
@@ -89,10 +127,8 @@ public class ChannelHolder implements Callable<Integer> {
         }
         try {
             mSocketChannel = SocketChannel.open();
-            LogTool.e(TAG, "mSocketChannel = SocketChannel.open()");
-            mSocketChannel.configureBlocking(false);
-            selector = Selector.open();
             //用channel.finishConnect();才能完成连接
+            mSocketChannel.configureBlocking(false);
             mSocketChannel.register(selector, SelectionKey.OP_CONNECT);
             ret = true;
         } catch (IOException e) {
@@ -101,42 +137,29 @@ public class ChannelHolder implements Callable<Integer> {
         return ret;
     }
 
-    public void shutdown() {
-        if (mSocketChannel == null) {
-            return;
-        }
-        synchronized (this) {
-            try {
-                mSocketChannel.close();
-            } catch (IOException e) {
-
-            }
-            mSocketChannel = null;
-        }
-    }
-
     @Override
     public Integer call() {
         if (mSocketChannel == null || !mSocketChannel.isOpen()) {
-            dispatcher.senderException(Dispatcher.SendCmd.SOCKET_CONNECT_FAIL);
+//            dispatcher.senderException(Dispatcher.SendCmd.SOCKET_CONNECT_FAIL);
         }
 
+        int ret = 1;
         if (!mSocketChannel.isConnected()) {
             synchronized (this) {
                 if (!mSocketChannel.isConnected()) {
                     int[] gaps = new int[]{0, 50, 200};
-                    boolean ret = false;
+                    boolean connectResult = false;
                     for (int i = 0; i < 3; i++) {
-                        ret = connectNioImp(gaps[i]);
-                        if (ret) break;
+                        connectResult = connectNioImp(gaps[i]);
+                        if (connectResult) break;
                     }
-                    if (!ret) {
-                        return 1;
+                    if (connectResult) {
+                        ret = demultiplexer.handleConnectingChannel(mSocketChannel, null, this);
                     }
                 }
             }
         }
-        return 0;
+        return ret;
     }
 
 
@@ -167,12 +190,6 @@ public class ChannelHolder implements Callable<Integer> {
                 }
             }
             LogTool.e(TAG, "mSocketChannel.connect success");
-            mSocketChannel.configureBlocking(false);
-            mSocketChannel.register(selector, SelectionKey.OP_READ);
-
-            receiver.setChannel(mSocketChannel, selector);
-            //TODO:receiver的start不应该在此处
-            receiver.start();
             ret = true;
         } catch (IOException e) {
             LogTool.e(TAG,"connectNioImp IOException!");
@@ -180,103 +197,25 @@ public class ChannelHolder implements Callable<Integer> {
         return ret;
     }
 
+    volatile boolean isConnected = false;
     //step3
     private int nioConnect() {
         int ret = 1;
-        Future<Integer> result = executor.submit(this);
-        try {
-            ret = result.get();
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        } finally {
-            return ret;
-        }
-    }
-
-    //?????
-    public void nioDisconnect() {
-//        host = null;
-//        port = null;
-        isAuth = false;
-        if (mSocketChannel == null) {
-            return;
-        }
-        if (mSocketChannel.isConnected()) {
-            try {
-                mSocketChannel.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return;
-        }
-        try {
-            mSocketChannel.close();
-        } catch (IOException e) {
-//            showError("关闭连接失败：" + e.getCause() + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-
-    private void listenNioConnect() {
-        while (true) {
-            try {
-                selector.select();
-                Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
-                while (iterator.hasNext()) {
-                    SelectionKey selectionKey = (SelectionKey) iterator.next();
-                    iterator.remove();
-                    if (selectionKey.isConnectable()) {
-                        SocketChannel socketChannel = (SocketChannel) selectionKey.channel();
-                        if (socketChannel.finishConnect()) {
-                            socketChannel.configureBlocking(false);
-                            socketChannel.register(selector, SelectionKey.OP_READ);
-
-                            receiver.setChannel(socketChannel,selector);
-                            receiver.start();
-                            return;
-                        }
-                    } else if (selectionKey.isReadable()) {
-//                                break;
+        if (!isConnected) {
+            synchronized (executor) {
+                if (!isConnected) {
+                    Future<Integer> result = executor.submit(this);
+                    try {
+                        ret = result.get();
+                        isConnected = true;
+                    } catch (ExecutionException | InterruptedException e) {
+                        throw new RuntimeException(e);
+                    } finally {
+                        return ret;
                     }
                 }
-            } catch (IOException e) {
-                if (e.getMessage() != null && e.getMessage().contains("closed")
-                        && e.getMessage().contains("Broken")) {
-                    nioDisconnect();
-                }
-                receiver.interrupt();
-//                        showError("连接失败：" + e.getCause() + e.getMessage());
-                e.printStackTrace();
             }
         }
-
+        return ret;
     }
-
-    public boolean haveChannel() {
-        if (mSocketChannel == null) {
-            registerNioSelector();
-        }
-        return false;
-    }
-
-
-//    public SocketChannel getSocketChannel() {
-//        if (mSocketChannel == null) {
-//            registerNioSelector();
-//        }
-//        if (mSocketChannel.isConnected())
-//            return mSocketChannel;
-//    }
-
-    public void setDispatcher(Dispatcher dispatcher) {
-        this.dispatcher = dispatcher;
-    }
-
-    public void setReceiver(Receiver receiver) {
-        this.receiver = receiver;
-    }
-
 }

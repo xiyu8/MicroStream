@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import com.jason.microstream.account.AccountManager;
 import com.jason.microstream.core.im.imconpenent.ImService;
+import com.jason.microstream.core.im.imconpenent.NetChanger;
 import com.jason.microstream.tool.DeviceManager;
 import com.jason.microstream.tool.LocContext;
 import com.jason.microstream.tool.NetUtil;
@@ -14,8 +15,12 @@ import com.jason.microstream.tool.NetUtil;
 import java.util.regex.Pattern;
 
 public class NetWorkStateReceiver extends BroadcastReceiver {
+    private final static String TAG = "NetWork";
 
-    public static String TAG = "NetWork";
+    private final NetChanger netChanger;
+    public NetWorkStateReceiver(NetChanger netChanger) {
+        this.netChanger = netChanger;
+    }
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -24,14 +29,10 @@ public class NetWorkStateReceiver extends BroadcastReceiver {
 //        LogTool.i(TAG, "NetWorkStateReceiver:" + (networks.length != 0));
         NetUtil.getInstance(LocContext.getContext()).recordNetworkStateChanges();
         if (networks.length == 0) {
-//            LogTool.i(TAG, "NetWorkStateReceiver:" + (networks.length == 0));
-            AccountManager.get().disConnect();
-            ImService.getIm().netChanged(false);
+            netChanger.onNetChanged(false);
         } else {
-//            LogTool.i(TAG, "NetWorkStateReceiver:" + true);
             String localIpAddress = DeviceManager.getLocalIpAddress(true);
-            AccountManager.get().reConnect();
-            ImService.getIm().netChanged(true);
+            netChanger.onNetChanged(true);
         }
     }
 

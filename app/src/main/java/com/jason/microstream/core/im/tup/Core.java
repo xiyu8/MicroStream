@@ -1,25 +1,22 @@
 package com.jason.microstream.core.im.tup;
 
-import android.app.Application;
-import android.content.Context;
-
 import com.jason.microstream.core.im.imconpenent.MsgHandler;
-import com.jason.microstream.core.im.tup.joint.MsgNotifier;
+import com.jason.microstream.core.im.tup.data.SendNode;
 import com.jason.microstream.core.im.tup.data.msg.LoginPkg;
+import com.jason.microstream.core.im.tup.joint.MsgNotifier;
+import com.jason.microstream.tool.log.LogTool;
 
-import java.nio.channels.Selector;
-import java.nio.channels.SocketChannel;
+import java.io.IOException;
 
 public class Core {
+    private static final String TAG = Core.class.getSimpleName();
+    public static final int ACTION_DATA = 0;
+    public static final int ACTION_AUTH = 1;
+    public static final int ACTION_BEAT = -1;
+    public static final int ACTION_DISCONNECT = Integer.MAX_VALUE;
 
     private static Core core;
-
-    private String host;
-    private String port;
-
-    private Core() {
-    }
-
+    private Core() {}
     public static Core getCore() {
         if (core == null) {
             synchronized (Core.class) {
@@ -31,109 +28,72 @@ public class Core {
         return core;
     }
 
-    public boolean isInit = false;
-
     private ChannelHolder channelHolder;
-    private Coder coder;
-    private Dispatcher dispatcher;
-    private Receiver receiver;
-    private Sender sender;
+    private Demultiplexer demultiplexer;
+
     MsgNotifier msgNotify;
-    MsgDistributor msgDistributor;
 
-    public void init(Application application, MsgHandler msgHandler) {
-        this.application = application;
-        this.msgNotify = msgHandler;
+    private volatile boolean isInit = false;
+    public void init(MsgHandler msgHandler, String host, String port) {
+        if (!isInit) {
+            synchronized (this) {
+                if (!isInit) {
+                    this.msgNotify = msgHandler;
 
-        channelHolder = new ChannelHolder();
-        coder = new Coder();
-        receiver = new Receiver();
-        channelHolder.setReceiver(receiver);
-        sender = new Sender();
-        sender.setChannelHolder(channelHolder);
+                    demultiplexer = new Demultiplexer();
+                    channelHolder = new ChannelHolder(host, port);
+                    channelHolder.setDemultiplexer(demultiplexer);
+                    new Thread(() -> channelHolder.connectSync()).start();
 
-        sender.setCoder(coder);
-        // receiver.setCoder(coder);
-        SenderQueueTimer queueTimer = new SenderQueueTimer(sender);
-        sender.setQueueTimer(queueTimer);
-
-        msgDistributor = new MsgDistributor();
-        msgDistributor.setMsgNotifier(msgNotify);
-
-        dispatcher = new Dispatcher();
-        dispatcher.setChannelHolder(channelHolder);
-        dispatcher.setCore(this);
-        dispatcher.setMsgDistributor(msgDistributor);
-        dispatcher.setSender(sender);
-        dispatcher.setCoder(coder);
-        dispatcher.setSenderQueueTimer(queueTimer);
-        sender.setDispatcher(dispatcher);
-        receiver.setDispatcher(dispatcher);
-        channelHolder.setDispatcher(dispatcher);
-        queueTimer.setDispatcher(dispatcher);
-        msgDistributor.setDispatcher(dispatcher);
-        msgDistributor.setChannelHolder(channelHolder);
-
-        isInit = true;
-        sender.start();
-
+                    isInit = true;
+                }
+            }
+        }
     }
 
-    public void auth(String host, String port,String uid,String token) {
-        this.host = host;
-        this.port = port;
+    public void sendAuth(String uid,String token, SendNode.SendCallback callBack) {
+        LogTool.e(TAG, "Core_auth:"
+        );
         LoginPkg loginPkg = new LoginPkg();
         loginPkg.uid = uid;
         loginPkg.token = token;
-        sender.sendRegister(loginPkg);
+//        sender.sendRegister(loginPkg);
+
+        if (channelHolder.getContext() == null) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int ret = channelHolder.connectSync();
+                    if (channelHolder.getContext() == null) {
+                        LogTool.f(TAG, "发送时建立长连接失败！");
+                        callBack.onSendFailed(new IOException("发送时建立长连接失败！"), null);
+                    } else {
+                        demultiplexer.sendAuth(channelHolder.getContext(), loginPkg, ACTION_AUTH, Coder.MSG_TYPE_REGISTER, callBack);
+                    }
+                }
+            }).start();
+        } else {
+            demultiplexer.sendAuth(channelHolder.getContext(), loginPkg, ACTION_AUTH, Coder.MSG_TYPE_REGISTER, callBack);
+        }
     }
 
-    public void reset() {
-        sender.sendShutdownImp();
-        sender.stop();
-        channelHolder.shutdown();
+    public long sendTest(Object msg,SendNode.SendCallback callBack) {
+        return demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, Coder.MSG_TYPE_TEST, callBack);
+    }
+
+    public long sendVideoCmd(Object msg, int cmd, SendNode.SendCallback callBack) {
+        return demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, cmd, callBack);
     }
 
     public void channelDown() {
-        channelHolder.nioDisconnect();
-    }
-
-
-    public void send(Object oj) {
-//        sender.send(msg);
-    }
-
-    public void sendTest(Object msg) {
-        sender.sendTest(msg);
-    }
-
-    public void sendVideoCmd(Object msg, int cmd) {
-        sender.sendVideoCmd(msg, cmd);
-    }
-
-    protected void sendAck() {
+        demultiplexer.handleCloseConnect(channelHolder.getContext(),channelHolder.mSocketChannel);
 
     }
 
-    Application application;
-    public Context getContext() {
-        return application;
-    }
 
-    public String getHost() {
-        return host;
-    }
 
-    public String getPort() {
-        return port;
-    }
-
-    public void connectReseted(SocketChannel socketChannel, Selector selector) {
-        sender.setSocketChannel(socketChannel);
-        receiver.setSocketChannel(socketChannel);
-        receiver.setSelector(selector);
-//        receiver.start();
-
+    public MsgNotifier getMsgNotifier() {
+        return msgNotify;
     }
 
 }

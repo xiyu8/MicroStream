@@ -34,13 +34,9 @@ public class NetMonitor extends BroadcastReceiver {
         NetUtil.getInstance(LocContext.getContext()).recordNetworkStateChanges();
         if (networks.length == 0) {
 //            LogTool.i(TAG, "NetWorkStateReceiver:" + (networks.length == 0));
-            AccountManager.get().disConnect();
-            ImService.getIm().netChanged(false);
         } else {
 //            LogTool.i(TAG, "NetWorkStateReceiver:" + true);
             String localIpAddress = DeviceManager.getLocalIpAddress(true);
-            AccountManager.get().reConnect();
-            ImService.getIm().netChanged(true);
         }
     }
 

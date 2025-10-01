@@ -29,6 +29,7 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable;
 
 public abstract class BasicActivity<P extends BasicPresenter> extends AppCompatActivity 
                                                             implements View.OnClickListener {
+    protected String TAG = BasicActivity.class.getSimpleName();
 
     //the container of this activity layout and sub-activity layout
     public LinearLayout parentLinearLayout;
@@ -38,7 +39,6 @@ public abstract class BasicActivity<P extends BasicPresenter> extends AppCompatA
     private LinearLayout toolBarArea;
     private LoadingDialog loadingDialog;
     private P mPresenter;
-    private final String TAG = BasicActivity.class.getSimpleName();
     protected CompositeDisposable disposable;
 
     @Override
@@ -46,6 +46,7 @@ public abstract class BasicActivity<P extends BasicPresenter> extends AppCompatA
 //        BackgroundLibrary.inject(this);
         super.onCreate(savedInstanceState);
         // ActivityCollector.addActivity(this);
+        TAG = this.getClass().getSimpleName();
         LogTool.i(TAG, "Activity Name : " + getClass().getName());
 
         initContentView(R.layout.activity_basic);  //把toolbar加到contentView

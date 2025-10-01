@@ -31,6 +31,10 @@ public class Msg {
 
     }
 
+    public long getSeqId() {
+        return seqId;
+    }
+
     public static final class STATE {
         public static final int SENDING = 0;
         public static final int SENDED = 1;

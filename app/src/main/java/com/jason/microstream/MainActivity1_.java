@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.gson.Gson;
 import com.jason.microstream.core.im.imconpenent.ImService;
 import com.jason.microstream.core.im.tup.Coder;
+import com.jason.microstream.core.im.tup.data.SendNode;
 import com.jason.microstream.localbroadcast.Events;
 import com.jason.microstream.localbroadcast.LocBroadcast;
 import com.jason.microstream.localbroadcast.LocBroadcastReceiver;
@@ -49,6 +50,7 @@ import org.webrtc.VideoCapturer;
 import org.webrtc.VideoSource;
 import org.webrtc.VideoTrack;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -340,7 +342,17 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
 //                nioBinder.nioWriteString("remotePeerConnection->onIceCandidate"+gson.toJson(iceCandidate));
                 Log.e(TAGT, "onIceCandidate send swap");
 //                nioBinder.sendSwapIceCandidate(iceCandidate,peerId);
-                ImService.getIm().sendVideoCmd(iceCandidate,peerId, Coder.MSG_TYPE_SWAP_ICE);
+                ImService.getIm().sendVideoCmd(iceCandidate, peerId, Coder.MSG_TYPE_SWAP_ICE, new SendNode.SendCallback() {
+                    @Override
+                    public void onSendSuccess(SendNode node) {
+
+                    }
+
+                    @Override
+                    public void onSendFailed(IOException e, SendNode node) {
+
+                    }
+                });
 
             }
         });
@@ -432,7 +444,17 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
 //                nioBinder.nioWriteString("remotePeerConnection.createOffer->onCreateSuccess"+gson.toJson(sessionDescription));;
                 Log.e(TAGT, "upstream offer sdp");
 //                nioBinder.sendOfferSdp(sessionDescription,peerId);
-                ImService.getIm().sendVideoCmd(sessionDescription,peerId, Coder.MSG_TYPE_OFFER_SDP);
+                ImService.getIm().sendVideoCmd(sessionDescription, peerId, Coder.MSG_TYPE_OFFER_SDP, new SendNode.SendCallback() {
+                    @Override
+                    public void onSendSuccess(SendNode node) {
+
+                    }
+
+                    @Override
+                    public void onSendFailed(IOException e, SendNode node) {
+
+                    }
+                });
             }
         }, new MediaConstraints());
     }
@@ -539,7 +561,17 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
 //                            nioBinder.nioWriteString("remotePeerConnection.createAnswer->onCreateSuccess"+gson.toJson(sessionDescription1));
                             Log.e(TAGT, "send swap sdp");
 //                            nioBinder.sendSwapSdp(sessionDescription1, peerId);
-                            ImService.getIm().sendVideoCmd(sessionDescription1,peerId, Coder.MSG_TYPE_SWAP_SDP);
+                            ImService.getIm().sendVideoCmd(sessionDescription1, peerId, Coder.MSG_TYPE_SWAP_SDP, new SendNode.SendCallback() {
+                                @Override
+                                public void onSendSuccess(SendNode node) {
+
+                                }
+
+                                @Override
+                                public void onSendFailed(IOException e, SendNode node) {
+
+                                }
+                            });
 
                         }
                     }, new MediaConstraints());
@@ -563,7 +595,17 @@ public class MainActivity1_ extends AppCompatActivity implements LocBroadcastRec
             return;
         }
 
-        ImService.getIm().sendTest(userNameIdMap.get(user),sendMsg);
+        ImService.getIm().sendTest(userNameIdMap.get(user), sendMsg, new SendNode.SendCallback() {
+            @Override
+            public void onSendSuccess(SendNode node) {
+
+            }
+
+            @Override
+            public void onSendFailed(IOException e, SendNode node) {
+
+            }
+        });
     }
 
 }

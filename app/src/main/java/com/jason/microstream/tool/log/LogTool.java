@@ -100,6 +100,17 @@ public final class LogTool {
         }
     }
 
+    private static final String TAGggg = "~~~~~~~~~~";
+    public static void f(String tag, String msg) {
+        if (isOpenLog && logLevel >= 0) {
+            String msg_ = replaceSpecialchar(msg);
+            String tag_ = replaceSpecialchar(tag);
+            String ext_ = tagIns.getExtraInfo();
+            Log.e(TAGggg, tag_ + ":" + ext_ + " " + msg_);
+//            writeLog("[ERROR][" + tag_ + " : "  + ext_ + " : " + msg_ + "]");
+        }
+    }
+
     private static String replaceSpecialchar(String ss) {
         String pS;
         if (!TextUtils.isEmpty(ss)) {

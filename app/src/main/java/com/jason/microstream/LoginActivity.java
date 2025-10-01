@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.jason.microstream.account.AccountManager;
+import com.jason.microstream.core.im.tup.data.SendNode;
+import com.jason.microstream.core.im.tup.data.msg.Msg;
 import com.jason.microstream.manager.config.ApiConfig;
 import com.jason.microstream.core.im.imconpenent.ImService;
 import com.jason.microstream.customer.LoadingDialog;
@@ -21,6 +23,8 @@ import com.jason.microstream.net.LoginRet;
 import com.jason.microstream.net.RequestUser;
 import com.jason.microstream.tool.NetUtil;
 import com.jason.microstream.tool.TextUtil;
+import com.jason.microstream.tool.ToastUtil;
+import com.jason.microstream.tool.log.LogTool;
 import com.jason.microstream.ui.TestSettingActivity;
 import com.jason.microstream.ui.base.BasicActivity;
 import com.jason.microstream.ui.base.BasicPresenter;
@@ -29,6 +33,8 @@ import com.jason.microstream.ui.main.MainActivity;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.builder.PostStringBuilder;
 import com.zhy.http.okhttp.callback.Callback;
+
+import java.io.IOException;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
@@ -151,7 +157,29 @@ public class LoginActivity extends BasicActivity implements LocBroadcastReceiver
                 user = loginRet.user;
 
                 AccountManager.get().resetAccount(user, loginRet.token, loginRet.expireAt, rememberPwd ? userPwd : null);
-                ImService.getIm().auth(AccountManager.get().getToken(), AccountManager.get().getUid());
+                ImService.getIm().auth(AccountManager.get().getToken(), AccountManager.get().getUid(), new ImService.AuthResult() {
+                    @Override
+                    public void onAuthSuccess() {
+                        LogTool.f(TAG, "登录成功");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ToastUtil.show(LoginActivity.this, "登录成功");
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onAuthFail() {
+                        LogTool.f(TAG, "登录失败！！！");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                ToastUtil.show(LoginActivity.this, "登录失败！！！");
+                            }
+                        });
+                    }
+                });
 
                 emitter.onNext(user);
                 emitter.onComplete();

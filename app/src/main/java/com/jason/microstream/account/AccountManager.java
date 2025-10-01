@@ -73,7 +73,10 @@ public class AccountManager {
         MsSharedPrefs.getInstance().remove(AccountManager.EXPIRE_KEY);
     }
 
-
+    /**
+     * get valid saved user info
+     * @return
+     */
     public User getSavedInitUser() {
         User user = new User();
         String uid = CmSharedPrefs.getInstance().getString(AccountManager.ID_KEY);
@@ -126,14 +129,6 @@ public class AccountManager {
         tokenExpireTime = Long.parseLong(expireTime);
     }
 
-    public void disConnect() {
-
-
-    }
-
-    public void reConnect() {
-
-    }
 
     public long getServerTime() {
         return System.currentTimeMillis();

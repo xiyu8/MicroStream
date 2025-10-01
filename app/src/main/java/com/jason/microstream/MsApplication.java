@@ -3,7 +3,7 @@ package com.jason.microstream;
 import android.app.Application;
 
 //import com.jason.microstream.core.im.tup.Core;
-import com.jason.microstream.manager.config.AccountConfig;
+import com.jason.microstream.manager.config.MSConfig;
 import com.jason.microstream.core.im.imconpenent.ImService;
 import com.jason.microstream.tool.LocContext;
 import com.jason.microstream.tool.log.LogTool;
@@ -25,7 +25,6 @@ import okhttp3.OkHttpClient;
 public class MsApplication extends Application {
 
     private static Application application;
-
     public static Application getInstance() {
         return application;
     }
@@ -44,7 +43,7 @@ public class MsApplication extends Application {
     }
 
     private void initMs() {
-        ImService.getIm().init(this, AccountConfig.host, String.valueOf(AccountConfig.port));
+        ImService.getIm().init(this, MSConfig.host, String.valueOf(MSConfig.port));
 
     }
 

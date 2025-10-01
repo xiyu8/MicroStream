@@ -11,15 +11,19 @@ import android.net.ConnectivityManager;
 import android.util.Log;
 
 import com.google.gson.Gson;
-import com.jason.microstream.core.im.tup.Core;
 import com.jason.microstream.core.im.receiver.NetWorkStateReceiver;
+import com.jason.microstream.core.im.tup.Core;
+import com.jason.microstream.core.im.tup.data.SendNode;
 import com.jason.microstream.core.im.tup.data.msg.TestMsg;
 import com.jason.microstream.core.im.tup.data.msg.VideoCmd;
 import com.jason.microstream.localbroadcast.Events;
 import com.jason.microstream.localbroadcast.LocBroadcast;
+import com.jason.microstream.tool.log.LogTool;
+
+import java.io.IOException;
 
 
-public class ImService {
+public class ImService implements NetChanger {
     public static final String TAG = "ImService";
 
     private static volatile ImService imService;
@@ -39,77 +43,127 @@ public class ImService {
 
     private String host;
     private String port;
-    private String uid;
-    private String token;
     private Application application;
-    boolean isInit = false;
-    Core core;
-    MsgHandler msgHandler;
-    Gson gson;
+    private volatile boolean isInit = false;
+    private Core core;
+    private MsgHandler msgHandler;
+    private Gson gson;
     public void init(Application application, String host, String port) {
         if (application == null || host == null || port == null
                 || host.equals("") || port.equals("")) {
             LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_INIT_FAIL,"init fail");
         }
+        if (!isInit) {
+            synchronized (this) {
+                if (!isInit) {
+                    this.host = host;
+                    this.port = port;
+                    this.application = application;
+                    initNetState(application);
 
-        this.host = host;
-        this.port = port;
-        this.application = application;
+                    core = Core.getCore();
+                    msgHandler = new MsgHandler();
+                    core.init(msgHandler, host, port);
 
-        initNetState(application);
-
-        core = Core.getCore();
-        msgHandler = new MsgHandler();
-        core.init(application,msgHandler);
-
-        isInit = true;
+                    isInit = true;
+                }
+            }
+        }
     }
 
+
     private void initNetState(Application application) {
-        NetWorkStateReceiver netWorkStateReceiver = new NetWorkStateReceiver();
+        NetWorkStateReceiver netWorkStateReceiver = new NetWorkStateReceiver(this);
         IntentFilter filter = new IntentFilter();
         filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         application.registerReceiver(netWorkStateReceiver, filter);
     }
 
-    public void auth(String imToken, String uid) {
-        this.uid = uid;
-        this.token = imToken;
+
+    private String uid;
+    private String token;
+    private boolean isAuthed = false;
+    private AuthResult authResultCallback;
+    private boolean logining = false;
+    public void auth(String imToken, String uid, AuthResult authResult) {
         if (!isInit) {
             LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_LOGIN_FAIL,"login without init");
+            LogTool.f(TAG, "auth失败：登录前需要初始化！！！");
+            isAuthed = false;
+            if (authResult != null) authResult.onAuthFail();
+            return;
+        }
+        if (imToken == null || uid == null) {
+            LogTool.f(TAG, "auth失败：账号为null");
+            if (authResult != null) authResult.onAuthFail();
+            return;
+        }
+        if (logining) {
+            LogTool.f(TAG, "auth失败：正在登录中......");
+            if (authResult != null) authResult.onAuthFail();
             return;
         }
 
-//        application.bindService(new Intent(application, NioPeriodChronicService.class), new ServiceConnection() {
-//            @Override
-//            public void onServiceConnected(ComponentName name, IBinder service) {
-//                nioBinder = (NioPeriodChronicService.NioBinder) service;
-//
-//                nioBinder.registerNioSelector();
-//                nioBinder.initWriteThread();
-//                nioBinder.nioConnect(host,port,loginToken,uid);
-//            }
-//            @Override
-//            public void onServiceDisconnected(ComponentName name) {}
-//        }, Context.BIND_AUTO_CREATE);
+        if (isAuthed) {
+            if (this.uid != null && this.token != null
+                    && (!this.uid.equals(uid) || !this.token.equals(imToken))) {
+                LogTool.f(TAG, "auth失败：账号不一致");
+                if (authResult != null) authResult.onAuthFail();
+            }
+            return;
+        }
 
-        core.auth(host, port, uid, imToken);
+        logining = true;
+        this.uid = uid;
+        this.token = imToken;
+        this.authResultCallback = authResult;
 
+        core.sendAuth(uid, imToken, new SendNode.SendCallback() {
+            @Override
+            public void onSendSuccess(SendNode node) {
+                LogTool.f(TAG, "登录消息发送成功(验证了长连接是否能发数据)");
+            }
+
+            @Override
+            public void onSendFailed(IOException e, SendNode node) {
+                LogTool.f(TAG, "登录消息发送失败(验证了长连接是否能发数据)");
+                isAuthed = false;
+                logining = false;
+                if (authResult != null) authResult.onAuthFail();
+            }
+        });
     }
+    // TODO:登录结果的策略另定：失败断开长连接、失败是否业务层登出  等等
+    public void setAuthed(boolean loginResult, String uid, String token) {
+        logining = false;
+        if (authResultCallback != null) {
+            if (loginResult) {
+                authResultCallback.onAuthSuccess();
+            } else {
+                core.channelDown();
+                authResultCallback.onAuthFail();
+            }
+        }
+    }
+
+    public interface AuthResult{
+        void onAuthFail();
+        void onAuthSuccess();
+    }
+
+
 
     public void reset() {
         this.uid = null;
         this.token = null;
 
-        core.reset();
-
+        core.channelDown();
     }
 
-    public void netChanged(boolean haveNet) {
+    public void onNetChanged(boolean haveNet) {
         if (!isInit) {
             return;
         }
-
         if (token == null || token.equals("")) {
             return;
         }
@@ -118,21 +172,16 @@ public class ImService {
             core.channelDown();
             return;
         }
-
-        core.auth(host, port, uid, token);
-
-
+        auth(token, uid, null);
     }
 
-    public void send(Object oj) {
-        core.send(oj);
-    }
-    public void sendTest(String toId,String ss) {
+
+    public void sendTest(String toId, String ss, SendNode.SendCallback callBack) {
         TestMsg testMsg = new TestMsg(uid, toId, toId, ss);
-        core.sendTest(testMsg);
+        core.sendTest(testMsg, callBack);
     }
 
-    public void sendVideoCmd(Object oj, String peerId, int cmd) {
+    public void sendVideoCmd(Object oj, String peerId, int cmd, SendNode.SendCallback callBack) {
         VideoCmd videoCmd = new VideoCmd(uid,peerId,gson.toJson(oj), peerId, cmd);
         if (cmd == MSG_TYPE_OFFER_SDP) {
             Log.e(CMD_TAG, "send cmd MSG_TYPE_OFFER_SDP:");
@@ -143,7 +192,7 @@ public class ImService {
         } else {
             Log.e(CMD_TAG, "send cmd MSG_TYPE_OFFER_SDP:");
         }
-        core.sendVideoCmd(videoCmd, cmd);
+        core.sendVideoCmd(videoCmd, cmd,callBack);
     }
 
     public String getHost() {

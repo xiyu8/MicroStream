@@ -3,6 +3,8 @@ package com.jason.microstream.core.im.tup.joint;
 import org.webrtc.IceCandidate;
 import org.webrtc.SessionDescription;
 
+import java.io.UnsupportedEncodingException;
+
 public interface MsgNotifier {
 
     int notify(String fromId,String msg);
@@ -12,4 +14,6 @@ public interface MsgNotifier {
     int notifySwapSdp(String formId, SessionDescription fromJson);
 
     int notifyOfferSdp(String formId, SessionDescription fromJson);
+
+    void handleData(byte[] msgData, int action, int msgType) throws UnsupportedEncodingException;
 }
