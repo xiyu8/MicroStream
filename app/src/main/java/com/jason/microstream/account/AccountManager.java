@@ -9,10 +9,10 @@ import com.jason.microstream.tool.sp.CmSharedPrefs;
 import com.jason.microstream.tool.sp.MsSharedPrefs;
 
 public class AccountManager {
-    public static final String ID_KEY = "uid";
-    public static final String PWD_KEY = "pwd";
-    public static final String TOKEN_KEY = "token";
-    public static final String EXPIRE_KEY = "expire";
+    private static final String ID_KEY = "uid";
+    private static final String PWD_KEY = "pwd";
+    private static final String TOKEN_KEY = "token";
+    private static final String EXPIRE_KEY = "expire";
 
     private static volatile AccountManager accountManager;
 
