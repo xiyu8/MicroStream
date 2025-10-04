@@ -20,6 +20,7 @@ public class Coder {
     public static final int MSG_TYPE_SWAP_ICE = 102;
     public static final int MSG_TYPE_SWAP_SDP = 103;
     public static final int MSG_TYPE_OFFER_SDP = 104;
+    public static final int MSG_TYPE_REQUEST = 1001;
     public static final int MSG_TYPE_ID_SIZE = 32;
 
 

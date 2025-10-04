@@ -1,7 +1,5 @@
 package com.jason.microstream.core.im.tup.reader;
 
-
-import com.jason.microstream.core.im.tup.ChannelHolder;
 import com.jason.microstream.core.im.tup.Demultiplexer;
 import com.jason.microstream.core.im.tup.channelcontext.ChannelContext;
 

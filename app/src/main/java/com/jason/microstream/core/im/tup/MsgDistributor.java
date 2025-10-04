@@ -1,9 +1,13 @@
 package com.jason.microstream.core.im.tup;
 
 import static com.jason.microstream.MainActivity1_.TAGT;
+import static com.jason.microstream.core.im.tup.Coder.MSG_TYPE_REQUEST;
+import static com.jason.microstream.core.im.tup.Coder.MSG_TYPE_SIZE;
 
 import com.google.gson.Gson;
+import com.jason.microstream.Tool;
 import com.jason.microstream.core.im.imconpenent.ImService;
+import com.jason.microstream.core.im.reqresp.RequestCore;
 import com.jason.microstream.core.im.tup.channelcontext.ChannelContext;
 import com.jason.microstream.core.im.tup.data.msg.LoginRet;
 import com.jason.microstream.core.im.tup.joint.MsgNotifier;
@@ -51,7 +55,8 @@ public class MsgDistributor {
             demultiplexer.handleCloseConnect(channelContext,channelContext.getSocket());
         } else if (action == Core.ACTION_DATA) { //data
             try {
-                msgNotifier.handleData(msgData, action, msgType);
+//                msgNotifier.handleData(msgData, action, msgType);
+                handleData(msgData, action, msgType);
             } catch (UnsupportedEncodingException e) {
                 throw new RuntimeException(e);
             }
@@ -59,6 +64,21 @@ public class MsgDistributor {
 
         return ret;
     }
+
+
+    public void handleData(byte[] msgModeData, int action, int msgType) throws UnsupportedEncodingException { //data
+        int sendType = Tool.byte4ToInt(msgModeData, 0);
+
+        if (sendType == MSG_TYPE_REQUEST) {
+            byte[] msgData = new byte[msgModeData.length - MSG_TYPE_SIZE];
+            System.arraycopy(msgModeData, MSG_TYPE_SIZE, msgData, 0, msgData.length);
+            String msgContent = new String(msgData, "UTF-8");
+            RequestCore.get().handleResponse(msgContent);
+        } else {
+            msgNotifier.handleData(msgModeData, action, msgType);
+        }
+    }
+
 
     private void handleAuth(ChannelContext channelContext, byte[] msgData) { // auth
         String authRetData;
@@ -82,15 +102,6 @@ public class MsgDistributor {
 
         }
     }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    public static final int MSG_TYPE_SIZE = 4;
-    public static final int MSG_TYPE_TEST = 1;
-    public static final int MSG_TYPE_REGISTER = 1;
-    public static final int MSG_TYPE_SWAP_ICE = 102;
-    public static final int MSG_TYPE_SWAP_SDP = 103;
-    public static final int MSG_TYPE_OFFER_SDP = 104;
-    private static final int MSG_TYPE_ID_SIZE = 32;
 
 
 }

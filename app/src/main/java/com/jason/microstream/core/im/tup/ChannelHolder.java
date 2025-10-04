@@ -1,25 +1,18 @@
 package com.jason.microstream.core.im.tup;
 
-import com.jason.microstream.account.AccountManager;
-import com.jason.microstream.core.im.imconpenent.ImService;
 import com.jason.microstream.core.im.tup.channelcontext.ChannelContext;
 import com.jason.microstream.tool.log.LogTool;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketTimeoutException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import io.netty.channel.ChannelPromise;
 
 
 public class ChannelHolder implements Callable<Integer> {
@@ -184,6 +177,7 @@ public class ChannelHolder implements Callable<Integer> {
                     if (System.currentTimeMillis() - start > timeout) {
 //                                    throw new SocketTimeoutException("Connect timed out");
                         LogTool.e(TAG,"connectNioImp__SocketTimeoutException!");
+                        mSocketChannel.close();
                         return false;
                     }
                     // 可以在这里做一些其他的操作，比如取消连接，或者处理其他的I/O事件
@@ -192,7 +186,7 @@ public class ChannelHolder implements Callable<Integer> {
             LogTool.e(TAG, "mSocketChannel.connect success");
             ret = true;
         } catch (IOException e) {
-            LogTool.e(TAG,"connectNioImp IOException!");
+            LogTool.e(TAG, "connectNioImp IOException!e:" + e);
         }
         return ret;
     }
@@ -207,8 +201,11 @@ public class ChannelHolder implements Callable<Integer> {
                     Future<Integer> result = executor.submit(this);
                     try {
                         ret = result.get();
-                        isConnected = true;
+                        if (ret == 0) {
+                            isConnected = true;
+                        }
                     } catch (ExecutionException | InterruptedException e) {
+                        LogTool.e(TAG, "mSocketChannel.connect callable thread submit fail!!!e:" + e);
                         throw new RuntimeException(e);
                     } finally {
                         return ret;

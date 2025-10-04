@@ -1,9 +1,9 @@
 package com.jason.microstream.core.im.imconpenent;
 
+import static com.jason.microstream.core.im.tup.Coder.MSG_TYPE_OFFER_SDP;
+import static com.jason.microstream.core.im.tup.Coder.MSG_TYPE_SWAP_ICE;
+import static com.jason.microstream.core.im.tup.Coder.MSG_TYPE_SWAP_SDP;
 import static com.jason.microstream.core.im.tup.MsgDistributor.CMD_TAG;
-import static com.jason.microstream.core.im.tup.MsgDistributor.MSG_TYPE_OFFER_SDP;
-import static com.jason.microstream.core.im.tup.MsgDistributor.MSG_TYPE_SWAP_ICE;
-import static com.jason.microstream.core.im.tup.MsgDistributor.MSG_TYPE_SWAP_SDP;
 
 import android.app.Application;
 import android.content.IntentFilter;

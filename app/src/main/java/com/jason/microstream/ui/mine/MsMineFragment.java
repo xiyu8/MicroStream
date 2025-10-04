@@ -13,11 +13,17 @@ import com.jason.microstream.LoginActivity;
 import com.jason.microstream.R;
 import com.jason.microstream.account.AccountManager;
 import com.jason.microstream.core.im.imconpenent.ImService;
+import com.jason.microstream.core.im.reqresp.MsRequester;
+import com.jason.microstream.core.im.reqresp.ReqCallback;
+import com.jason.microstream.core.im.reqresp.ReqWrapper;
+import com.jason.microstream.core.im.reqresp.data.BaseReqBean;
+import com.jason.microstream.core.im.reqresp.data.BaseRespBean;
 import com.jason.microstream.manager.config.ApiConfig;
 import com.jason.microstream.net.BaseRp;
 import com.jason.microstream.net.LoginRet;
 import com.jason.microstream.net.RequestUser;
 import com.jason.microstream.tool.NetUtil;
+import com.jason.microstream.tool.log.LogTool;
 import com.jason.microstream.ui.base.BasicPresenter;
 import com.jason.microstream.ui.base.BriefObserver;
 import com.jason.microstream.ui.compenent.recyclerview.BasicAdapter;
@@ -76,6 +82,7 @@ public class MsMineFragment extends MainFragment implements BasicAdapter.ItemCli
         View item_mine_logout = LayoutInflater.from(getContext()).inflate(R.layout.item_mine_logout, null);
         mineAdapter.addFooter(item_mine_logout);
         item_mine_logout.findViewById(R.id.logout).setOnClickListener(this);
+        item_mine_logout.findViewById(R.id.test_request).setOnClickListener(this);
     }
 
     @Override
@@ -83,6 +90,25 @@ public class MsMineFragment extends MainFragment implements BasicAdapter.ItemCli
         switch (view.getId()) {
             case R.id.logout:
                 logout();
+                break;
+            case R.id.test_request:
+                BaseReqBean baseReqBean = new BaseReqBean();
+                baseReqBean.data = "sssss";
+                new MsRequester<BaseRespBean>(baseReqBean,"/test_api")
+                        .request(BaseRespBean.class,new ReqCallback<BaseRespBean>() {
+                    @Override
+                    public void onSuccess(BaseRespBean respBean) {
+                        LogTool.f("TAG", "11111:"
+                                + respBean.data);
+                    }
+
+                    @Override
+                    public void onFail(Exception exception, ReqWrapper req) {
+                        LogTool.f( "TAG", "22222"
+                                + "-exception:" + exception.getMessage()
+                        );
+                    }
+                });
                 break;
         }
     }

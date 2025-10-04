@@ -1,5 +1,6 @@
 package com.jason.microstream.core.im.tup;
 
+import com.jason.microstream.core.im.imconpenent.ImService;
 import com.jason.microstream.core.im.imconpenent.MsgHandler;
 import com.jason.microstream.core.im.tup.data.SendNode;
 import com.jason.microstream.core.im.tup.data.msg.LoginPkg;
@@ -64,11 +65,11 @@ public class Core {
                 @Override
                 public void run() {
                     int ret = channelHolder.connectSync();
-                    if (channelHolder.getContext() == null) {
+                    if (ret == 0) {
+                        demultiplexer.sendAuth(channelHolder.getContext(), loginPkg, ACTION_AUTH, Coder.MSG_TYPE_REGISTER, callBack);
+                    } else {
                         LogTool.f(TAG, "发送时建立长连接失败！");
                         callBack.onSendFailed(new IOException("发送时建立长连接失败！"), null);
-                    } else {
-                        demultiplexer.sendAuth(channelHolder.getContext(), loginPkg, ACTION_AUTH, Coder.MSG_TYPE_REGISTER, callBack);
                     }
                 }
             }).start();
@@ -77,12 +78,63 @@ public class Core {
         }
     }
 
+    private long sendWithInactive(ChannelHolder channelHolder,Object msg,int action, int msgType, SendNode.SendCallback callBack) {
+        new Thread(() -> {
+
+            int ret = channelHolder.connectSync();
+            if (ret == 0) {
+                String uid = null, token = null;
+                if ((uid = ImService.getIm().getUid()) != null && (token = ImService.getIm().getToken()) != null) {
+                    ImService.getIm().auth(token, uid, new ImService.AuthResult() {
+                        @Override
+                        public void onAuthFail() {
+                            LogTool.e(TAG, "发送时账号验证失败！");
+                            callBack.onSendFailed(new IOException("send with auth fail!"), null);
+                        }
+
+                        @Override
+                        public void onAuthSuccess() {
+                            demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, Coder.MSG_TYPE_REQUEST, callBack);
+                        }
+                    });
+                }else {
+                    LogTool.e(TAG, "发送时本地没有有效账号！");
+                    callBack.onSendFailed(new IOException("send with null of uidToken!"), null);
+                }
+            } else {
+                LogTool.e(TAG, "发送时建立长连接失败！");
+                callBack.onSendFailed(new IOException("send with connect fail!"), null);
+            }
+
+        }).start();
+        return 0;
+    }
+
     public long sendTest(Object msg,SendNode.SendCallback callBack) {
-        return demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, Coder.MSG_TYPE_TEST, callBack);
+        if (channelHolder.getContext() == null) {
+            sendWithInactive(channelHolder, msg, ACTION_DATA, Coder.MSG_TYPE_TEST, callBack);
+        } else {
+            demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, Coder.MSG_TYPE_TEST, callBack);
+        }
+        return 0;
+    }
+
+    public long sendRequest(Object msg,SendNode.SendCallback callBack) {
+        if (channelHolder.getContext() == null) {
+            sendWithInactive(channelHolder, msg, ACTION_DATA, Coder.MSG_TYPE_REQUEST, callBack);
+        } else {
+            demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, Coder.MSG_TYPE_REQUEST, callBack);
+        }
+        return 0;
     }
 
     public long sendVideoCmd(Object msg, int cmd, SendNode.SendCallback callBack) {
-        return demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, cmd, callBack);
+        if (channelHolder.getContext() == null) {
+            sendWithInactive(channelHolder, msg, ACTION_DATA, cmd, callBack);
+        } else {
+            demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, cmd, callBack);
+        }
+        return 0;
     }
 
     public void channelDown() {

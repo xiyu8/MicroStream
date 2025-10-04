@@ -3,8 +3,25 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/item_mine_logout"
+    android:orientation="vertical"
     >
 
+    <Button
+        android:id="@+id/test_request"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:onClick="onClick"
+        android:text="test_request"
+        android:textSize="@dimen/font_size_large"
+        android:textColor="@color/ms_text"
+        android:textStyle="bold"
+        android:background="@drawable/setting_item_bg"
+
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginLeft="5dp"
+        />
     <Button
         android:id="@+id/logout"
         android:layout_width="match_parent"

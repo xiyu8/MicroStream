@@ -1,10 +1,6 @@
 package com.jason.microstream.core.im.imconpenent;
 
-import static com.jason.microstream.core.im.tup.MsgDistributor.MSG_TYPE_OFFER_SDP;
-import static com.jason.microstream.core.im.tup.MsgDistributor.MSG_TYPE_SIZE;
-import static com.jason.microstream.core.im.tup.MsgDistributor.MSG_TYPE_SWAP_ICE;
-import static com.jason.microstream.core.im.tup.MsgDistributor.MSG_TYPE_SWAP_SDP;
-import static com.jason.microstream.core.im.tup.MsgDistributor.MSG_TYPE_TEST;
+import static com.jason.microstream.core.im.tup.Coder.*;
 
 import android.util.Log;
 
