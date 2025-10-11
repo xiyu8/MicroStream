@@ -15,7 +15,7 @@ public class UpLoadMoreHolder extends BasicHolder<UpLoadMoreHolder.Item>{
 //    }
 
     public UpLoadMoreHolder(Context context, ViewGroup parent, UpLoadMoreListener upLoadMoreListener) {
-        super(context, parent, R.layout.item_load_more);
+        super(parent, R.layout.item_load_more);
         this.upLoadMoreListener = upLoadMoreListener;
     }
 

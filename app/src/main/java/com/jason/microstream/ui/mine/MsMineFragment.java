@@ -3,7 +3,6 @@ package com.jason.microstream.ui.mine;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,18 +15,16 @@ import com.jason.microstream.core.im.imconpenent.ImService;
 import com.jason.microstream.core.im.reqresp.MsRequester;
 import com.jason.microstream.core.im.reqresp.ReqCallback;
 import com.jason.microstream.core.im.reqresp.ReqWrapper;
-import com.jason.microstream.core.im.reqresp.data.BaseReqBean;
-import com.jason.microstream.core.im.reqresp.data.BaseRespBean;
+import com.jason.microstream.core.im.reqresp.data.BaseReq;
+import com.jason.microstream.core.im.reqresp.data.BaseResp;
 import com.jason.microstream.manager.config.ApiConfig;
 import com.jason.microstream.net.BaseRp;
-import com.jason.microstream.net.LoginRet;
 import com.jason.microstream.net.RequestUser;
 import com.jason.microstream.tool.NetUtil;
 import com.jason.microstream.tool.log.LogTool;
 import com.jason.microstream.ui.base.BasicPresenter;
 import com.jason.microstream.ui.base.BriefObserver;
 import com.jason.microstream.ui.compenent.recyclerview.BasicAdapter;
-import com.jason.microstream.ui.conversation.holder.ConversationHolder;
 import com.jason.microstream.ui.main.MainFragment;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.builder.PostStringBuilder;
@@ -42,7 +39,6 @@ import io.reactivex.rxjava3.core.ObservableOnSubscribe;
 import io.reactivex.rxjava3.core.ObservableSource;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.functions.Function;
-import io.reactivex.rxjava3.observers.DisposableObserver;
 import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.Response;
@@ -92,12 +88,12 @@ public class MsMineFragment extends MainFragment implements BasicAdapter.ItemCli
                 logout();
                 break;
             case R.id.test_request:
-                BaseReqBean baseReqBean = new BaseReqBean();
+                BaseReq baseReqBean = new BaseReq();
                 baseReqBean.data = "sssss";
-                new MsRequester<BaseRespBean>(baseReqBean,"/test_api")
-                        .request(BaseRespBean.class,new ReqCallback<BaseRespBean>() {
+                new MsRequester<BaseResp>(baseReqBean,"/test_api")
+                        .request(BaseResp.class,new ReqCallback<BaseResp>() {
                     @Override
-                    public void onSuccess(BaseRespBean respBean) {
+                    public void onSuccess(BaseResp respBean) {
                         LogTool.f("TAG", "11111:"
                                 + respBean.data);
                     }

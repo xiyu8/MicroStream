@@ -33,13 +33,13 @@ public abstract class BasicAdapter<H extends BasicHolder<D>,D extends BasicHolde
     public H onCreateViewHolder(@NonNull ViewGroup parent, int viewType){
         if (enableLoadMore) {
             if (viewType == ViewType.VIEW_LOAD) {
-                LoadMoreHolder loadMoreHolder = new LoadMoreHolder(parent.getContext(), parent,this);
+                LoadMoreHolder loadMoreHolder = new LoadMoreHolder(parent,this);
                 return (H) loadMoreHolder;
             }
         }
         if (viewType == ViewType.VIEW_HEADER) {
             if (headerHolder == null) {
-                headerHolder = new HeaderHolder(parent.getContext(), parent);
+                headerHolder = new HeaderHolder(parent);
                 ArrayList<View> views = new ArrayList<>();
                 for (View headerView : headerViews) {
                     views.add(headerView);
@@ -49,7 +49,7 @@ public abstract class BasicAdapter<H extends BasicHolder<D>,D extends BasicHolde
             return (H) headerHolder;
         }  else if (viewType == ViewType.VIEW_FOOTER) {
             if (footerHolder == null) {
-                footerHolder = new FooterHolder(parent.getContext(), parent);
+                footerHolder = new FooterHolder(parent);
                 ArrayList<View> views = new ArrayList<>();
                 for (View footerView : footerViews) {
                     views.add(footerView);
@@ -67,7 +67,7 @@ public abstract class BasicAdapter<H extends BasicHolder<D>,D extends BasicHolde
     boolean loadMoreFlag;
     @Override
     public void onBindViewHolder(@NonNull H holder, int position) {
-        if(items==null) return;
+        if (items == null) return;
 
         if (holder instanceof LoadMoreHolder) {
             if (loadMoreItem.status == LoadMoreHolder.Item.Status.NO_LOAD && items.size() > 0) {
@@ -80,13 +80,13 @@ public abstract class BasicAdapter<H extends BasicHolder<D>,D extends BasicHolde
                     }
                 }
             }
-            holder.bindDataBase((D)loadMoreItem,position);
+            holder.bindDataBase(items, (D) loadMoreItem, position);
         } else if (holder instanceof HeaderHolder) {
-            holder.bindDataBase(null,position);
+            holder.bindDataBase(items, null, position);
         } else if (holder instanceof FooterHolder) {
-            holder.bindDataBase(null,position);
+            holder.bindDataBase(items, null, position);
         } else {
-            holder.bindDataBase(items.get(getDataItemPosition(position)),getDataItemPosition(position));
+            holder.bindDataBase(items, items.get(getDataItemPosition(position)), getDataItemPosition(position));
         }
     }
 

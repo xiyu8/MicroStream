@@ -1,6 +1,5 @@
 package com.jason.microstream.ui.compenent.recyclerview;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,31 +8,36 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+
 /**
  * itemClick itemChildClick and its longClick
  */
 public abstract class BasicHolder<D extends BasicHolder.Item> extends RecyclerView.ViewHolder
         implements View.OnClickListener, View.OnLongClickListener {
-
-    public BasicHolder(@NonNull View itemView) {
+    /**
+     * block the construct func
+     * @param itemView
+     */
+    private BasicHolder(@NonNull View itemView) {
         super(itemView);
         bindView();
     }
-    public BasicHolder(Context context, ViewGroup parent, @LayoutRes int itemViewId) {
-        super(LayoutInflater.from(context).inflate(itemViewId,parent,false));
+    public BasicHolder(ViewGroup parent, @LayoutRes int itemViewId) {
+        super(LayoutInflater.from(parent.getContext()).inflate(itemViewId,parent,false));
         bindView();
     }
-    BasicAdapter.ItemClickListener<D> itemClickListener;
-    BasicAdapter.ItemChildClickListener<D> itemChildClickListener;
+    private BasicAdapter.ItemClickListener<D> itemClickListener;
+    private BasicAdapter.ItemChildClickListener<D> itemChildClickListener;
 //    public BasicHolder(Context context, ViewGroup parent,@LayoutRes int itemViewId
 //            ,BasicAdapter.ItemClickListener<D> itemClickListener) {
 //        super(LayoutInflater.from(context).inflate(itemViewId, parent, false));
 //        createInit(itemClickListener,null);
 //    }
-    public BasicHolder(Context context, ViewGroup parent,@LayoutRes int itemViewId
+    public BasicHolder(ViewGroup parent,@LayoutRes int itemViewId
             ,BasicAdapter.ItemClickListener<D> itemClickListener
             ,BasicAdapter.ItemChildClickListener<D> itemChildClickListener) {
-        super(LayoutInflater.from(context).inflate(itemViewId, parent, false));
+        super(LayoutInflater.from(parent.getContext()).inflate(itemViewId, parent, false));
         createInit(itemClickListener,itemChildClickListener);
     }
     private void createInit(BasicAdapter.ItemClickListener<D> itemClickListener
@@ -55,17 +59,22 @@ public abstract class BasicHolder<D extends BasicHolder.Item> extends RecyclerVi
     protected abstract void bindView();
 //    public abstract void bindData(D item);
 
+    ArrayList<D> items;
     D item;
     int position;
-    void bindDataBase(D item,int position){
+    void bindDataBase(ArrayList<D> items, D item,int position) {
+        this.items = items;
         this.item = item;
         this.position = position;
         bindData(item, position);
     }
-    public abstract void bindData(D item,int position);
+
+    public abstract void bindData(D item, int position);
 
 
-
+    public ArrayList<D> getItems() {
+        return items;
+    }
 
     public void addChildClick(View view) {
         view.setOnClickListener(this);

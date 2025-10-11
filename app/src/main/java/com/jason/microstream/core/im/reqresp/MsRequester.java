@@ -1,9 +1,8 @@
 package com.jason.microstream.core.im.reqresp;
 
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.jason.microstream.core.im.reqresp.data.BaseReqBean;
-import com.jason.microstream.core.im.reqresp.data.BaseRespBean;
+import com.jason.microstream.core.im.reqresp.data.BaseReq;
+import com.jason.microstream.core.im.reqresp.data.BaseResp;
 
 public class MsRequester<RP> implements DataParser {
     //todo:修改，ReqWrapper不该出现在此处
@@ -12,21 +11,30 @@ public class MsRequester<RP> implements DataParser {
     private RP resp;
     private Gson gson;
     private ReqCallback<RP> callBack;
-    private Class<RP> clazz;
-    public MsRequester(BaseReqBean req,String apiChar) {
-        if (req == null) {
+    private Class clazz;
+    public MsRequester(Object reqData, String apiChar) {
+        if (reqData == null) {
             throw new RuntimeException("null of request!!!");
         }
         gson = new Gson();
         reqWrapper = new ReqWrapper();
         reqWrapper.apiChar = apiChar;
-        reqWrapper.original = req;
+        reqWrapper.original = reqData;
 
-        reqWrapper.requestContent = gson.toJson(req);
+        BaseReq baseReq = new BaseReq();
+//        baseReq.uid = ;
+//        baseReq.token = ;
+//        baseReq.uuid =  ;
+        if (reqData instanceof String) {
+            baseReq.data = (String) reqData;
+        } else {
+            baseReq.data = gson.toJson(reqData);
+        }
+        reqWrapper.requestContent = gson.toJson(baseReq);
     }
 
 
-    public void request(Class<RP> clazz, ReqCallback<RP> callBack) {
+    public void request(Class clazz, ReqCallback<RP> callBack) {
         this.callBack = callBack;
         this.clazz = clazz;
         requestImp();
@@ -48,11 +56,20 @@ public class MsRequester<RP> implements DataParser {
     public void parseData(RespWrapper respWrapper) {
         String apiChar = respWrapper.apiChar;
         String responseContent = respWrapper.respContent;
-        if (responseContent != null) {
-            resp = gson.fromJson(responseContent, clazz);
-            callBack.onSuccess(resp);
+
+
+        BaseResp baseResp = gson.fromJson(responseContent, BaseResp.class);
+        if (baseResp.errorCode == 0) {
+            if (clazz == String.class) { //不解析，给业务层解析的情况
+                callBack.onSuccess((RP) baseResp.data);
+            } else {
+                resp = (RP) gson.fromJson(baseResp.data, clazz);
+                callBack.onSuccess(resp);
+            }
         } else {
-            onFail(new RuntimeException("null of response data!"));
+            callBack.onFail(new RuntimeException(((BaseResp) resp).errorCode + ":" + ((BaseResp) resp).errorCode)
+                    ,reqWrapper);
+
         }
     }
 

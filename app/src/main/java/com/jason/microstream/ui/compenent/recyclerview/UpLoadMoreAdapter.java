@@ -61,9 +61,9 @@ public abstract class UpLoadMoreAdapter<H extends BasicHolder<D>,D extends Basic
                     }
                 }
             }
-            holder.bindDataBase((D)upLoadMoreItem,position);
+            holder.bindDataBase(items, (D) upLoadMoreItem, position);
         } else {
-            holder.bindDataBase(items.get(getDataItemPosition(position)),position);
+            holder.bindDataBase(items, items.get(getDataItemPosition(position)), position);
         }
     }
 

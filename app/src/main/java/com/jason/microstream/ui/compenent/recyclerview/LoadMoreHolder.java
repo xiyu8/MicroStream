@@ -1,6 +1,5 @@
 package com.jason.microstream.ui.compenent.recyclerview;
 
-import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -14,8 +13,8 @@ public class LoadMoreHolder extends BasicHolder<LoadMoreHolder.Item>{
 //        super(context, parent, R.layout.item_load_more);
 //    }
 
-    public LoadMoreHolder(Context context, ViewGroup parent, LoadMoreListener loadMoreListener) {
-        super(context, parent, R.layout.item_load_more);
+    public LoadMoreHolder(ViewGroup parent, LoadMoreListener loadMoreListener) {
+        super(parent, R.layout.item_load_more);
         this.loadMoreListener = loadMoreListener;
     }
 

@@ -1,9 +1,7 @@
 package com.jason.microstream.ui.compenent.recyclerview;
 
-import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-
 
 import com.jason.microstream.R;
 
@@ -11,8 +9,8 @@ import java.util.ArrayList;
 
 public class FooterHolder  extends BasicHolder{
 
-    public FooterHolder(Context context, ViewGroup parent) {
-        super(context, parent, R.layout.item_header_container);
+    public FooterHolder(ViewGroup parent) {
+        super(parent, R.layout.item_header_container);
 
     }
 

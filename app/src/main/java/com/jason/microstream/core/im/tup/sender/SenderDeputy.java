@@ -78,14 +78,14 @@ public class SenderDeputy {
      * 将数据分发到相应的队列
      */
     public void putCandidateNode(SendNode sendNode, ChannelContext channelContext) {
+        if (sendNode.isAcked == 1) {
+            return;
+        }
         LogTool.e(TAG, "putCandidateNode:"
                 + "-sendNode.stubId:" + sendNode.stubId
                 + "-sendNode.seqId:" + sendNode.seqId
                 + "-sendNode.isAcked:" + sendNode.isAcked
         );
-        if (sendNode.isAcked == 1) {
-            return;
-        }
         long sessionId = channelContext.getSessionId();
 
         int queueIndex = workerIndexMap.computeIfAbsent(sessionId, id -> {

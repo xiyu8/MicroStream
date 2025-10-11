@@ -36,7 +36,7 @@ public class ConversationHolder extends BasicHolder<ConversationHolder.Item> {
     public ConversationHolder(Context context, ViewGroup parent
             , BasicAdapter.ItemClickListener<Item> itemClickListener
             , BasicAdapter.ItemChildClickListener<Item> itemChildClickListener) {
-        super(context, parent, R.layout.item_conversation, itemClickListener,itemChildClickListener);
+        super(parent, R.layout.item_conversation, itemClickListener,itemChildClickListener);
         holderSector = new ConversationHolderSector();
     }
 
@@ -44,17 +44,17 @@ public class ConversationHolder extends BasicHolder<ConversationHolder.Item> {
 //        super(context,R.layout.item_conversation);
 //    }
 
-    ConversationHolderSector holderSector;
-    ImageView is_top;
-    ImageView chat_avatar;
-    TextView chat_name;
-    TextView last_msg_content;
-    TextView last_msg_time;
-    TextView unread_count;
-    ViewGroup mute_area;
-    ImageView mute_icon;
-    ImageView mute_unread;
-    AvatarView group_avatar;
+    private ConversationHolderSector holderSector;
+    private ImageView is_top;
+    private ImageView chat_avatar;
+    private TextView chat_name;
+    private TextView last_msg_content;
+    private TextView last_msg_time;
+    private TextView unread_count;
+    private ViewGroup mute_area;
+    private ImageView mute_icon;
+    private ImageView mute_unread;
+    private AvatarView group_avatar;
     @Override
     public void bindView() {
         is_top = itemView.findViewById(R.id.is_top);

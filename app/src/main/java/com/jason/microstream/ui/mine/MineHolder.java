@@ -1,28 +1,19 @@
 package com.jason.microstream.ui.mine;
 
-import android.content.Context;
-import android.view.View;
 import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
 
 import com.jason.microstream.ui.compenent.recyclerview.BasicAdapter;
 import com.jason.microstream.ui.compenent.recyclerview.BasicHolder;
 
-import java.util.List;
 
 public class MineHolder  extends BasicHolder<MineHolder.Item> {
 
-    public MineHolder(@NonNull View itemView) {
-        super(itemView);
+    public MineHolder(ViewGroup parent, int itemViewId) {
+        super(parent, itemViewId);
     }
 
-    public MineHolder(Context context, ViewGroup parent, int itemViewId) {
-        super(context, parent, itemViewId);
-    }
-
-    public MineHolder(Context context, ViewGroup parent, int itemViewId, BasicAdapter.ItemClickListener<Item> itemClickListener, BasicAdapter.ItemChildClickListener<Item> itemChildClickListener) {
-        super(context, parent, itemViewId, itemClickListener, itemChildClickListener);
+    public MineHolder(ViewGroup parent, int itemViewId, BasicAdapter.ItemClickListener<Item> itemClickListener, BasicAdapter.ItemChildClickListener<Item> itemChildClickListener) {
+        super(parent, itemViewId, itemClickListener, itemChildClickListener);
     }
 
     @Override

@@ -141,6 +141,7 @@ public class ImService implements NetChanger {
                 authResultCallback.onAuthSuccess();
             } else {
                 core.channelDown();
+                //TODO:当服务端返回 登录失败时未处理(清除token并登出)
                 authResultCallback.onAuthFail();
             }
         }

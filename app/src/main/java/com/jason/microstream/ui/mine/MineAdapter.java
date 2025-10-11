@@ -21,6 +21,6 @@ public class MineAdapter extends BasicAdapter<MineHolder,MineHolder.Item> {
     @Override
     public MineHolder onCreateHolder(@NonNull ViewGroup parent, int viewType) {
 //        return new MineHolder(parent.getContext(), parent,itemClickListener,itemChildClickListener);
-        return new MineHolder(parent.getContext(),parent, R.layout.item_mine,itemClickListener,itemChildClickListener);
+        return new MineHolder(parent, R.layout.item_mine,itemClickListener,itemChildClickListener);
     }
 }
