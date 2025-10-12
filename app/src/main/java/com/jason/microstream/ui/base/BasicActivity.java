@@ -159,7 +159,7 @@ public abstract class BasicActivity<P extends BasicPresenter> extends AppCompatA
         if (toolbarTitle != null) {
             toolbarTitle.setText(title);
         } else {
-            this.getToolbar().setTitle(title);
+            getToolbar().setTitle(title);
         }
     }
 

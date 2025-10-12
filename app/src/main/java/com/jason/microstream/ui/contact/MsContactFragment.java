@@ -1,5 +1,6 @@
 package com.jason.microstream.ui.contact;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -130,6 +131,10 @@ public class MsContactFragment extends MainFragment implements BasicAdapter.Item
     @Override
     public void onItemClick(ContactHolder.Item item, int position) {
 
+        Intent intent = new Intent(getContext(), MyContactActivity.class);
+        intent.putExtra("userName", item.user.name);
+        intent.putExtra("userId", item.user.uid);
+        startActivity(intent);
     }
 
     @Override

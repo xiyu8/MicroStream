@@ -6,7 +6,7 @@
 
     <dimen name="rippleStrokeWidth">2dp</dimen>
     <dimen name="rippleRadius">32dp</dimen>
-    
+
 
     <dimen name="card_side_margin">10dp</dimen>
     <dimen name="element_round_radius">4dp</dimen>
