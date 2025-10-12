@@ -1,4 +1,4 @@
-package com.jason.microstream.ui.compenent.recyclerview;
+package com.jason.microstream.ui.view_compenent.recyclerview;
 
 import android.view.View;
 import android.view.ViewGroup;

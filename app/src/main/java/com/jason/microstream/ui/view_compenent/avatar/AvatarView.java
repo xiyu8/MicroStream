@@ -1,4 +1,4 @@
-package com.jason.microstream.ui.compenent.avatar;
+package com.jason.microstream.ui.view_compenent.avatar;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -11,20 +11,20 @@ import com.jason.microstream.ui.conversation.avatar.GroupUser;
 
 import java.util.List;
 
-public class AvatarImageView  extends FrameLayout {
-    public AvatarImageView(@NonNull Context context) {
+public class AvatarView extends FrameLayout {
+    public AvatarView(@NonNull Context context) {
         super(context);
     }
 
-    public AvatarImageView(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public AvatarView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public AvatarImageView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public AvatarView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public AvatarImageView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public AvatarView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 

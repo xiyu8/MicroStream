@@ -5,7 +5,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 
 
-import com.jason.microstream.ui.compenent.recyclerview.BasicAdapter;
+import com.jason.microstream.ui.view_compenent.recyclerview.BasicAdapter;
 import com.jason.microstream.ui.conversation.holder.ConversationHolder;
 
 import java.util.ArrayList;

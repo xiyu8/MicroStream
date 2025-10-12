@@ -10,18 +10,15 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.viewmodel.CreationExtras;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.gyf.immersionbar.ImmersionBar;
 import com.jason.microstream.R;
 import com.jason.microstream.broadcastevent.EventNetworkChanged;
-import com.jason.microstream.ui.base.BasicFragment;
 import com.jason.microstream.ui.base.BriefObserver;
-import com.jason.microstream.ui.compenent.recyclerview.BasicAdapter;
-import com.jason.microstream.ui.compenent.recyclerview.LoadMoreHolder;
+import com.jason.microstream.ui.view_compenent.recyclerview.BasicAdapter;
+import com.jason.microstream.ui.view_compenent.recyclerview.LoadMoreHolder;
 import com.jason.microstream.ui.conversation.holder.ConversationHolder;
 import com.jason.microstream.ui.main.MainFragment;
 

@@ -14,26 +14,20 @@ import com.jason.microstream.core.im.reqresp.ReqWrapper;
 import com.jason.microstream.core.im.reqresp.data.bean.RespUser;
 import com.jason.microstream.core.im.reqresp.data.bean.contact.ReqContact;
 import com.jason.microstream.core.im.reqresp.data.bean.contact.RespContact;
-import com.jason.microstream.tool.log.LogTool;
 import com.jason.microstream.ui.base.BasicPresenter;
 import com.jason.microstream.ui.base.BriefObserver;
-import com.jason.microstream.ui.compenent.recyclerview.BasicAdapter;
+import com.jason.microstream.ui.view_compenent.recyclerview.BasicAdapter;
 import com.jason.microstream.ui.main.MainFragment;
-import com.scwang.smart.refresh.footer.ClassicsFooter;
-import com.scwang.smart.refresh.header.ClassicsHeader;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
-import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
-import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 

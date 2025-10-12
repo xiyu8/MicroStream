@@ -6,8 +6,8 @@ import android.widget.TextView;
 
 import com.jason.microstream.R;
 import com.jason.microstream.core.im.reqresp.data.bean.RespUser;
-import com.jason.microstream.ui.compenent.recyclerview.BasicAdapter;
-import com.jason.microstream.ui.compenent.recyclerview.BasicHolder;
+import com.jason.microstream.ui.view_compenent.recyclerview.BasicAdapter;
+import com.jason.microstream.ui.view_compenent.recyclerview.BasicHolder;
 
 
 public class ContactHolder extends BasicHolder<ContactHolder.Item> {

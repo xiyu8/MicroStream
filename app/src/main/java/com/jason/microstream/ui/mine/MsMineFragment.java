@@ -24,7 +24,7 @@ import com.jason.microstream.tool.NetUtil;
 import com.jason.microstream.tool.log.LogTool;
 import com.jason.microstream.ui.base.BasicPresenter;
 import com.jason.microstream.ui.base.BriefObserver;
-import com.jason.microstream.ui.compenent.recyclerview.BasicAdapter;
+import com.jason.microstream.ui.view_compenent.recyclerview.BasicAdapter;
 import com.jason.microstream.ui.main.MainFragment;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.builder.PostStringBuilder;

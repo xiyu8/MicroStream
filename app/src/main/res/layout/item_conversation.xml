@@ -29,7 +29,7 @@
         android:textSize="16dp"
         android:textColor="@color/ms_text"
         />
-    <com.jason.microstream.ui.compenent.avatar.AvatarView
+    <com.jason.microstream.ui.view_compenent.avatar.AvatarView
         android:id="@+id/group_avatar"
         android:layout_width="40dp"
         android:layout_height="40dp"

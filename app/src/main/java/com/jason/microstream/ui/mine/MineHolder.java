@@ -2,8 +2,8 @@ package com.jason.microstream.ui.mine;
 
 import android.view.ViewGroup;
 
-import com.jason.microstream.ui.compenent.recyclerview.BasicAdapter;
-import com.jason.microstream.ui.compenent.recyclerview.BasicHolder;
+import com.jason.microstream.ui.view_compenent.recyclerview.BasicAdapter;
+import com.jason.microstream.ui.view_compenent.recyclerview.BasicHolder;
 
 
 public class MineHolder  extends BasicHolder<MineHolder.Item> {

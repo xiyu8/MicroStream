@@ -18,9 +18,9 @@ import com.bumptech.glide.request.RequestOptions;
 import com.jason.microstream.R;
 import com.jason.microstream.account.AccountManager;
 import com.jason.microstream.tool.TimeUtil2;
-import com.jason.microstream.ui.compenent.recyclerview.BasicAdapter;
-import com.jason.microstream.ui.compenent.recyclerview.BasicHolder;
-import com.jason.microstream.ui.compenent.avatar.AvatarView;
+import com.jason.microstream.ui.view_compenent.recyclerview.BasicAdapter;
+import com.jason.microstream.ui.view_compenent.recyclerview.BasicHolder;
+import com.jason.microstream.ui.view_compenent.avatar.AvatarView;
 import com.jason.microstream.ui.conversation.avatar.GroupUser;
 import com.jason.microstream.ui.conversation.avatar.MsMessage;
 
