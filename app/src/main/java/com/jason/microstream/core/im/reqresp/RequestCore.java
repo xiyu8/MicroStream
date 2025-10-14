@@ -70,7 +70,7 @@ public class RequestCore implements RequestTimeoutI{
             requestMonitor.waitingRespMap.remove(respWrapper.reqId);
             task.parser.parseData(respWrapper);
         }else {
-            LogTool.e(TAG, "handleResponse:"
+            LogTool.e(TAG, "handleResponse-!!!:"
                     + "-task.req.reqId:" + (task == null ? null : task.reqWrapper.reqId)
             );
         }

@@ -59,6 +59,10 @@ public class AccountManager {
         clearSavedUserInfoImp();
     }
 
+    public void forceLogout() {
+        resetLogout();
+    }
+
     private void clearAccountInfoImp() {
         this.user = null;
         this.token = null;

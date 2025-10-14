@@ -4,8 +4,13 @@ import static com.jason.microstream.MainActivity1_.TAGT;
 import static com.jason.microstream.core.im.tup.Coder.MSG_TYPE_REQUEST;
 import static com.jason.microstream.core.im.tup.Coder.MSG_TYPE_SIZE;
 
+import android.content.Intent;
+
 import com.google.gson.Gson;
+import com.jason.microstream.LoginActivity;
+import com.jason.microstream.MsApplication;
 import com.jason.microstream.Tool;
+import com.jason.microstream.account.AccountManager;
 import com.jason.microstream.core.im.imconpenent.ImService;
 import com.jason.microstream.core.im.reqresp.RequestCore;
 import com.jason.microstream.core.im.tup.channelcontext.ChannelContext;
@@ -98,6 +103,16 @@ public class MsgDistributor {
         if (loginRet != null && loginRet.authRet != null && loginRet.authRet.equals("success")) {
             ImService.getIm().setAuthed(true, loginRet.uid, loginRet.token);
         } else {
+
+            if (loginRet != null && loginRet.authRet != null && loginRet.authRet.equals("fail")) {
+                AccountManager.get().forceLogout();
+                ImService.getIm().reset();
+
+                Intent intent = new Intent(MsApplication.getInstance(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                MsApplication.getInstance().startActivity(intent);
+            }
+
             //TODO: 服务端返回 token 无效或过期，跳转登录页面重新登录获取token，或者页面不改变 自动重新获取token
             ImService.getIm().setAuthed(false, loginRet == null ? null : loginRet.uid, loginRet == null ? null : loginRet.token);
 

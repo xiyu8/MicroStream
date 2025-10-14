@@ -94,7 +94,7 @@ public class Core {
 
                         @Override
                         public void onAuthSuccess() {
-                            demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, Coder.MSG_TYPE_REQUEST, callBack);
+                            demultiplexer.sendTo(channelHolder, msg, action, msgType, callBack);
                         }
                     });
                 }else {
@@ -133,6 +133,22 @@ public class Core {
             sendWithInactive(channelHolder, msg, ACTION_DATA, cmd, callBack);
         } else {
             demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, cmd, callBack);
+        }
+        return 0;
+    }
+
+    /**
+     * 暴露给外面的原生接口：action为data，但msgType交给外部自行定义
+     * @param msg
+     * @param msgType
+     * @param callBack
+     * @return
+     */
+    public long sendTo(Object msg, int msgType, SendNode.SendCallback callBack) {
+        if (channelHolder.getContext() == null) {
+            sendWithInactive(channelHolder, msg, ACTION_DATA, msgType, callBack);
+        } else {
+            demultiplexer.sendTo(channelHolder, msg, ACTION_DATA, msgType, callBack);
         }
         return 0;
     }
