@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@drawable/shape_white_solid_corner8"
+    >
+
+    <ImageView
+        android:id="@+id/part_message_send_gif"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_marginLeft="12dp"
+        android:src="@drawable/part_ai_message_gen_animator"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="12dp"
+        />
+<!--    <TextView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="内容生成中…"-->
+<!--        android:textColor="@color/ms_text"-->
+<!--        android:textSize="16dp"-->
+<!--        android:layout_marginTop="8dp"-->
+<!--        android:layout_marginBottom="8dp"-->
+<!--        android:layout_marginLeft="4dp"-->
+<!--        android:layout_marginRight="12dp"-->
+<!--        />-->
+
+</LinearLayout>

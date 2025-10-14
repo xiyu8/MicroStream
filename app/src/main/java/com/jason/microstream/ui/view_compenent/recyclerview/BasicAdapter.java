@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class BasicAdapter<H extends BasicHolder<D>,D extends BasicHolder.Item> extends RecyclerView.Adapter<H>
         implements LoadMoreHolder.LoadMoreListener {
@@ -90,8 +91,12 @@ public abstract class BasicAdapter<H extends BasicHolder<D>,D extends BasicHolde
         }
     }
 
-    private int getDataItemPosition(int sourcePosition) {
+    protected int getDataItemPosition(int sourcePosition) {
         return sourcePosition - headerCount;
+    }
+
+    protected List<D> getItems() {
+        return items;
     }
 
     @Override

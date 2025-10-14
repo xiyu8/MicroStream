@@ -4,6 +4,7 @@ package com.jason.microstream.core.im.tup.reader;
 import com.jason.microstream.core.im.tup.Demultiplexer;
 import com.jason.microstream.core.im.tup.channelcontext.ChannelContext;
 import com.jason.microstream.core.im.tup.channelcontext.ReadStatus;
+import com.jason.microstream.tool.log.LogTool;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -48,7 +49,7 @@ public class SessionAwareWorker implements Runnable {
                 break;
             } catch (Exception e) {
                 // 记录错误但继续处理
-//                logger.error("Error processing data in worker {}", workerId, e);
+//                LogTool.e(TAG, "Error processing data in worker {}");
             }
         }
 

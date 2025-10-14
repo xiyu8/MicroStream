@@ -218,7 +218,7 @@ public class Sender implements Callable<Integer> {
                 msg.setStubId(stubId = genStubId(stubId));
                 msg.setStubId(stubId);
             }
-            msg.state = Msg.STATE.SENDING;
+            msg._state = Msg.STATE.SENDING;
         }
     }
 

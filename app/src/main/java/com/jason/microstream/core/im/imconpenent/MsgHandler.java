@@ -6,6 +6,9 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.jason.microstream.Tool;
+import com.jason.microstream.core.im.im_mode.msg.BaseMsg;
+import com.jason.microstream.core.im.im_mode.msg.ImMsgConfig;
+import com.jason.microstream.core.im.im_mode.msg.TextMsg;
 import com.jason.microstream.core.im.tup.MsgDistributor;
 import com.jason.microstream.core.im.tup.data.msg.TestMsg;
 import com.jason.microstream.core.im.tup.data.msg.VideoCmd;
@@ -20,12 +23,22 @@ import java.io.UnsupportedEncodingException;
 
 public class MsgHandler implements MsgNotifier {
     private static final String TAG = MsgHandler.class.getSimpleName();
+
+    public MsgHandler() {
+        gson = new Gson();
+    }
+
     Gson gson;
 
     @Override
     public void handleData(byte[] msgModeData, int action, int msgType) throws UnsupportedEncodingException { //data
         int sendType = Tool.byte4ToInt(msgModeData, 0);
-        if (sendType == MSG_TYPE_TEST) {
+        if (sendType == MSG_TYPE_IM) {
+            byte[] msgData = new byte[msgModeData.length - MSG_TYPE_SIZE];
+            System.arraycopy(msgModeData, MSG_TYPE_SIZE, msgData, 0, msgData.length);
+            String msgContent = new String(msgData, "UTF-8");
+            notifyImMsg(msgContent);
+        } else if (sendType == MSG_TYPE_TEST) {
             byte[] msgData = new byte[msgModeData.length - MSG_TYPE_SIZE];
             System.arraycopy(msgModeData, MSG_TYPE_SIZE, msgData, 0, msgData.length);
             String msgContent = new String(msgData, "UTF-8");
@@ -84,6 +97,17 @@ public class MsgHandler implements MsgNotifier {
         return 0;
     }
 
+    private void notifyImMsg(String imMsgContent) {
+        BaseMsg baseMsg = gson.fromJson(imMsgContent, BaseMsg.class);
+        if (baseMsg.getMsgType() == ImMsgConfig.ImMsgType.TYPE_TEXT) {
+            TextMsg textMsg = gson.fromJson(imMsgContent, TextMsg.class);
+            LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_MSG_RECEIVE, textMsg);
+
+        } else {
+
+        }
+
+    }
 
 
 }

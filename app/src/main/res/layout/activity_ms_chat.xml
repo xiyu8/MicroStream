@@ -1,9 +1,178 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ai_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.chat.MsChatActivity">
+    android:background="#F3F9FF"
+    >
+    <ImageView
+        android:id="@+id/bg1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/ai_chat_main_bg"
+        android:scaleType="centerCrop"
+        />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main_center_area"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintBottom_toTopOf="@id/input_area"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintVertical_bias="0"
+        >
+
+        <com.scwang.smart.refresh.layout.SmartRefreshLayout
+            android:id="@+id/contact_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            app:layout_constrainedHeight="true"
+            app:layout_constraintBottom_toTopOf="@id/new_session_area"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1"
+            app:srlEnablePureScrollMode="true"
+            >
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/msg_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"/>
+
+            <com.scwang.smart.refresh.footer.ClassicsFooter
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                />
+        </com.scwang.smart.refresh.layout.SmartRefreshLayout>
+
+<!--        <com.shinemo.qoffice.biz.ai.customview.AiGuideView-->
+<!--            android:id="@+id/ai_guide_view"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            app:layout_constraintTop_toTopOf="parent"-->
+<!--            app:layout_constraintLeft_toLeftOf="parent"-->
+<!--            android:layout_marginTop="15dp"-->
+<!--            android:layout_marginLeft="15dp"-->
+<!--            android:layout_marginRight="15dp"-->
+<!--            android:visibility="gone"-->
+<!--            />-->
+
+        <LinearLayout
+            android:id="@+id/new_session_area"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/shape_white_solid_corner8"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_marginLeft="15dp"
+            android:onClick="onClick"
+            >
+            <ImageView
+                android:id="@+id/new_session_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/new_session_icon"
+                />
+
+            <TextView
+                android:id="@+id/new_session_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="新建会话"
+                android:textColor="@color/ms_text"
+                android:textSize="13dp"
+                android:layout_marginLeft="5dp"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/history_session_area"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/shape_white_solid_corner8"
+            app:layout_constraintBottom_toBottomOf="@id/new_session_area"
+            app:layout_constraintLeft_toRightOf="@id/new_session_area"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_marginLeft="11dp"
+            android:onClick="onClick"
+            >
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/history_session_icon"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="历史会话"
+                android:textColor="@color/ms_text"
+                android:textSize="13dp"
+                android:layout_marginLeft="5dp"
+                />
+        </LinearLayout>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/input_area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingVertical="10dp"
+        >
+        <EditText
+            android:id="@+id/main_edit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:paddingLeft="13dp"
+            android:paddingRight="13dp"
+            android:paddingTop="9dp"
+            android:paddingBottom="9dp"
+            android:background="@drawable/shape_white_solid_corner8"
+            android:hint="请输入"
+            android:textColorHint="@color/c_gray4"
+            android:textSize="16dp"
+            android:maxHeight="100dp"
+            android:inputType="textMultiLine"
+            />
+
+        <ImageView
+            android:id="@+id/ai_cmd_shortcut"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/shape_white_solid_corner8"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/ai_cmd_shortcut"
+            android:padding="10dp"
+            android:onClick="onClick"
+            />
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

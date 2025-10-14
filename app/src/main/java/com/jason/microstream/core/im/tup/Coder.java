@@ -15,13 +15,18 @@ public class Coder {
     }
 
     public static final int MSG_TYPE_SIZE = 4;
+
     public static final int MSG_TYPE_TEST = 1;
     public static final int MSG_TYPE_REGISTER = 1;
     public static final int MSG_TYPE_SWAP_ICE = 102;
     public static final int MSG_TYPE_SWAP_SDP = 103;
     public static final int MSG_TYPE_OFFER_SDP = 104;
+
     public static final int MSG_TYPE_REQUEST = 1001;
     public static final int MSG_TYPE_ID_SIZE = 32;
+
+    public static final int MSG_TYPE_IM = 2001;
+
 
 
     public byte[] encode(CoderData coderData) {

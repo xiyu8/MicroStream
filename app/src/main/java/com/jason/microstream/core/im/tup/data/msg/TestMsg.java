@@ -1,6 +1,8 @@
 package com.jason.microstream.core.im.tup.data.msg;
 
-public class TestMsg extends Msg{
+import com.jason.microstream.core.im.im_mode.msg.BaseMsg;
+
+public class TestMsg extends BaseMsg {
     public String id;
     public String content;
 
@@ -8,8 +10,9 @@ public class TestMsg extends Msg{
     }
 
     public TestMsg(String fromId, String toId, String id, String content) {
-        super(fromId, toId);
         this.id = id;
         this.content = content;
+        this.fromId = fromId;
+        this.toId = toId;
     }
 }

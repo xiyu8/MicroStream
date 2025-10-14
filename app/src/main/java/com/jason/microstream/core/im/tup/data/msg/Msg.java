@@ -4,18 +4,9 @@ public class Msg {
     public long stubId;
     public long seqId;
 
-
-    public String fromId;
-    public String toId;
-
-    public int state;
+    public int _state;
 
     public Msg() {
-    }
-
-    public Msg(String fromId, String toId) {
-        this.fromId = fromId;
-        this.toId = toId;
     }
 
     public long getStubId() {
