@@ -20,6 +20,8 @@
             android:layout_height="0px"
             android:layout_weight="1"
             android:background="@color/c_gray1"
+            android:overScrollMode="never"
+            android:fadingEdge="none"
             />
 
         <androidx.cardview.widget.CardView

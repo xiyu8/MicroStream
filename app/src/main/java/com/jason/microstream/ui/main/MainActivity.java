@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.lifecycle.Lifecycle;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
@@ -85,6 +86,11 @@ public class MainActivity extends BasicActivity<MainPresenter> implements MainPr
         getToolBarArea().setVisibility(View.GONE);
 
         main_pager = findViewById(R.id.main_pager);
+        // google viewpager2的bug
+        View child = main_pager.getChildAt(0);
+        if (child instanceof RecyclerView) {
+            child.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        }
         main_tab = findViewById(R.id.main_tab);
 
     }

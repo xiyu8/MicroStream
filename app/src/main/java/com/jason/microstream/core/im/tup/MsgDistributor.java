@@ -98,6 +98,7 @@ public class MsgDistributor {
         if (loginRet != null && loginRet.authRet != null && loginRet.authRet.equals("success")) {
             ImService.getIm().setAuthed(true, loginRet.uid, loginRet.token);
         } else {
+            //TODO: 服务端返回 token 无效或过期，跳转登录页面重新登录获取token，或者页面不改变 自动重新获取token
             ImService.getIm().setAuthed(false, loginRet == null ? null : loginRet.uid, loginRet == null ? null : loginRet.token);
 
         }

@@ -104,6 +104,7 @@ public class MsContactFragment extends MainFragment implements BasicAdapter.Item
                 .subscribe(new BriefObserver<RespContact>(new CompositeDisposable()) {
                     @Override
                     public void onNext(@NonNull RespContact respContact) {
+                        contactItems.clear();
                         for (RespUser respUser : respContact.respUsers) {
                             ContactHolder.Item item = new ContactHolder.Item();
                             item.user = respUser;
