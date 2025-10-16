@@ -92,7 +92,7 @@ public abstract class MainFragment<P extends BasicPresenter<? extends BasicPrese
 
     private void showTabData() {
         if (tab_title != null && getContext() != null) {
-            tab_title.setTextColor(getContext().getColor(selected ? R.color.sh_theme : R.color.sh_text));
+            tab_title.setTextColor(getContext().getColor(selected ? R.color.ms_theme : R.color.sh_text));
             tab_title.setText(mTitle);
         }
         if(tab_icon!=null){

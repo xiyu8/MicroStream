@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="ms_white">#FFFFFFFF</color>
+    <color name="ms_theme">#1986D3</color>
+    <color name="ms_theme_lt">#41aEfC</color>
+    <color name="ms_theme_lt_ultra">#E3F3FF</color>
+    <color name="ms_warn">#DD5D1D</color>
+    <color name="ms_text">#FF262A30</color>
+    <color name="ms_text_sub_hint">#959BA3</color>
+    <color name="ms_bg">#F7F8F9</color>
+
+
+
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FFFFFFFF</color>
     <color name="purple_700">#FF3700B3</color>
@@ -12,20 +23,12 @@
 
     <color name="click_able_blue">#2C68FF</color>
 
-    <color name="ms_white">#FFFFFFFF</color>
-    <color name="ms_theme">#138BE1</color>
-    <color name="ms_theme_lt">#41aEfC</color>
-    <color name="ms_warn">#DD5D1D</color>
-    <color name="ms_text">#FF262A30</color>
-    <color name="ms_text_sub_hint">#959BA3</color>
-    <color name="ms_bg">#F7F8F9</color>
     <color name="ms_stroke_gray">#CBCFD6</color>
     <color name="ms_hint_gray">#FFCBCFD6</color>
 
     <color name="ms_caution">#DD5D1D</color>
 
     <color name="c_gray2">#E9ECF0</color>
-    <color name="c_brand">#1474B8</color>
     <color name="c_white">#FFFFFF</color>
     <color name="c_black">#000000</color>
 <!--    <color name="c_gray1">#F7F8F9</color>-->
@@ -65,7 +68,6 @@
     <color name="c_caution">@color/c_a_red</color>
 
     <color name="sh_white">#FFFFFFFF</color>
-    <color name="sh_theme">#319EEC</color>
     <color name="sh_warn">#DD5D1D</color>
     <color name="sh_text">#FF262A30</color>
     <color name="sh_text_sub_hint">#959BA3</color>

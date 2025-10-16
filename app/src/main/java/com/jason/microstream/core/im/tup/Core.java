@@ -44,7 +44,7 @@ public class Core {
                     demultiplexer = new Demultiplexer();
                     channelHolder = new ChannelHolder(host, port);
                     channelHolder.setDemultiplexer(demultiplexer);
-                    new Thread(() -> channelHolder.connectSync()).start();
+//                    new Thread(() -> channelHolder.connectSync()).start(); //
 
                     isInit = true;
                 }

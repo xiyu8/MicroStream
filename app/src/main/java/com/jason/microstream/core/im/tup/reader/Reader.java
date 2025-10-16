@@ -125,6 +125,7 @@ public class Reader implements Callable<Integer> {
         try {
             bytesRead = channel.read(buffer);
         } catch (IOException e) {
+            LogTool.e(TAG, "readChannel_readIOException:" + e.getMessage());
             handleConnectionClosed((ChannelContext) selectionKey.attachment(), channel, selectionKey);
             return;
         }
@@ -141,6 +142,7 @@ public class Reader implements Callable<Integer> {
             processingSystem.processData(new RawData(channel, data, (ChannelContext) selectionKey.attachment()));
 
         } else if (bytesRead < 0) { //channel异常关闭
+            LogTool.e(TAG, "readChannel:bytesRead < 0：" + bytesRead);
             handleConnectionClosed((ChannelContext) selectionKey.attachment(), channel, selectionKey);
         }
         buffer.clear();

@@ -5,7 +5,7 @@
     android:id="@+id/ai_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F3F9FF"
+    android:background="@color/ms_bg"
     >
     <ImageView
         android:id="@+id/bg1"
@@ -14,6 +14,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:src="@drawable/ai_chat_main_bg"
         android:scaleType="centerCrop"
+        android:visibility="gone"
         />
 
 
@@ -143,6 +144,7 @@
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
         android:paddingVertical="10dp"
+        android:background="@color/ms_white"
         >
         <EditText
             android:id="@+id/main_edit"
@@ -154,7 +156,7 @@
             android:paddingRight="13dp"
             android:paddingTop="9dp"
             android:paddingBottom="9dp"
-            android:background="@drawable/shape_white_solid_corner8"
+            android:background="@drawable/shape_gray_bg_corner8"
             android:hint="请输入"
             android:textColorHint="@color/c_gray4"
             android:textSize="16dp"
@@ -166,7 +168,7 @@
             android:id="@+id/ai_cmd_shortcut"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:background="@drawable/shape_white_solid_corner8"
+            android:background="@drawable/shape_gray_bg_corner8"
             android:layout_marginLeft="10dp"
             android:src="@drawable/ai_cmd_shortcut"
             android:padding="10dp"

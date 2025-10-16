@@ -171,7 +171,7 @@ public class MsChatActivity extends BasicActivity implements
             history_session_area.setVisibility(View.VISIBLE);
             new_session_area.setVisibility(View.VISIBLE);
             ai_cmd_shortcut.setVisibility(View.VISIBLE);
-            main_edit.setBackground(getDrawable(R.drawable.shape_white_solid_corner8));
+            main_edit.setBackground(getDrawable(R.drawable.shape_gray_bg_corner8));
 //            main_center_area.getLayoutParams().height = main_center_areaHeight;
 //            main_center_area.requestLayout();
 //            //代码修改ConstraintLayout约束关系

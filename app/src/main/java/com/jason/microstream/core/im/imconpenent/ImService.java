@@ -21,6 +21,8 @@ import com.jason.microstream.localbroadcast.LocBroadcast;
 import com.jason.microstream.tool.log.LogTool;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class ImService implements NetChanger {
@@ -79,7 +81,7 @@ public class ImService implements NetChanger {
         application.registerReceiver(netWorkStateReceiver, filter);
     }
 
-
+//////////////auth//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     private String uid;
     private String token;
     private boolean isAuthed = false;
@@ -117,6 +119,18 @@ public class ImService implements NetChanger {
         this.uid = uid;
         this.token = imToken;
         this.authResultCallback = authResult;
+        //login timeout timer  ???????????????????
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                if (logining) {
+                    setAuthed(false, null, null);
+                    logining = false;
+                }
+            }
+        };
+        Timer timer = new Timer("timer");
+        timer.schedule(task, 5000);
 
         core.sendAuth(uid, imToken, new SendNode.SendCallback() {
             @Override
@@ -152,6 +166,7 @@ public class ImService implements NetChanger {
         void onAuthSuccess();
     }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     public void reset() {

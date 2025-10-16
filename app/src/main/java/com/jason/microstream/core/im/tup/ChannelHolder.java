@@ -18,7 +18,7 @@ import java.util.concurrent.Future;
 public class ChannelHolder implements Callable<Integer> {
     private final String TAG = ChannelHolder.class.getSimpleName();
 
-    ExecutorService executor;
+    private final ExecutorService executor;
     SocketChannel mSocketChannel;
     private final Selector selector;
 
@@ -95,41 +95,57 @@ public class ChannelHolder implements Callable<Integer> {
             synchronized (this) {
                 if (mSocketChannel == null || !mSocketChannel.isOpen()) {
                     int[] gaps = new int[]{0, 50, 200};
-                    boolean ret = false;
+                    int openRet = 1;
                     for (int i = 0; i < 3; i++) {
-                        ret = registerNioImp(gaps[i]);
-                        if (ret) break;
-                    }
-                    if (!ret) {
-                        return 1;
+                        int gap = gaps[i];
+                        if (gap != 0) {
+                            try {
+                                Thread.sleep(gap);
+                            } catch (InterruptedException ignored) {
+                            }
+                        }
+                        try {
+                            mSocketChannel = SocketChannel.open();
+                            //用channel.finishConnect();才能完成连接
+                            mSocketChannel.configureBlocking(false);
+                            mSocketChannel.register(selector, SelectionKey.OP_CONNECT);
+                            openRet = 0;
+                        } catch (IOException e) {
+                            LogTool.e(TAG,"registerNioImp IOException!");
+                        }
+                        if (openRet == 0) break;
                     }
 
+                    return openRet;
                 }
             }
         }
         return 0;
     }
 
-    private boolean registerNioImp(int gap) {
-        boolean ret = false;
-        if (gap != 0) {
-            try {
-                Thread.sleep(gap);
-            } catch (InterruptedException ignored) {
+    //step3
+    private int nioConnect() {
+        int ret = 1;
+        if (!isConnected) {
+            synchronized (executor) {
+                if (!isConnected) {
+                    Future<Integer> result = executor.submit(this);
+                    try {
+                        ret = result.get();
+                        if (ret == 0) {
+                            isConnected = true;
+                        }
+                    } catch (ExecutionException | InterruptedException e) {
+                        LogTool.e(TAG, "mSocketChannel.connect callable thread submit fail!!!e:" + e);
+                        throw new RuntimeException(e);
+                    } finally {
+                        return ret;
+                    }
+                }
             }
-        }
-        try {
-            mSocketChannel = SocketChannel.open();
-            //用channel.finishConnect();才能完成连接
-            mSocketChannel.configureBlocking(false);
-            mSocketChannel.register(selector, SelectionKey.OP_CONNECT);
-            ret = true;
-        } catch (IOException e) {
-            LogTool.e(TAG,"registerNioImp IOException!");
         }
         return ret;
     }
-
     @Override
     public Integer call() {
         if (mSocketChannel == null || !mSocketChannel.isOpen()) {
@@ -191,28 +207,6 @@ public class ChannelHolder implements Callable<Integer> {
         return ret;
     }
 
-    volatile boolean isConnected = false;
-    //step3
-    private int nioConnect() {
-        int ret = 1;
-        if (!isConnected) {
-            synchronized (executor) {
-                if (!isConnected) {
-                    Future<Integer> result = executor.submit(this);
-                    try {
-                        ret = result.get();
-                        if (ret == 0) {
-                            isConnected = true;
-                        }
-                    } catch (ExecutionException | InterruptedException e) {
-                        LogTool.e(TAG, "mSocketChannel.connect callable thread submit fail!!!e:" + e);
-                        throw new RuntimeException(e);
-                    } finally {
-                        return ret;
-                    }
-                }
-            }
-        }
-        return ret;
-    }
+    private volatile boolean isConnected = false;
+
 }
