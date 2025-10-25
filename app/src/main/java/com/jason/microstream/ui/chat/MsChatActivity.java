@@ -369,7 +369,7 @@ public class MsChatActivity extends BasicActivity implements
             if (session != null) {
                 MessageEntityDao dao = session.getMessageEntityDao();
                 Query<MessageEntity> query = dao.queryBuilder()
-                        .where(MessageEntityDao.Properties.Cid.eq(userId))
+                        .where(MessageEntityDao.Properties.Cid.eq(cId))
                         .orderDesc(MessageEntityDao.Properties.SendTime)
                         .limit(pageCount)
                         .offset(pageCount * 20)
@@ -386,6 +386,23 @@ public class MsChatActivity extends BasicActivity implements
                     ItemMessage itemMessage = new ItemMessage();
                     itemMessage.msg = baseMsg;
                     msgItems.add(itemMessage);
+                }
+
+                if (msgItems.size() > 0) {
+                    ConversationEntityDao convDao = session.getConversationEntityDao();
+                    List<ConversationEntity> conversationEntities = convDao.queryBuilder()
+                            .where(ConversationEntityDao.Properties.Cid.eq(cId))
+                            .build()
+                            .list();
+                    if (conversationEntities.size() > 0
+                            && conversationEntities.get(0).getLastReadMsgId() != msgItems.get(0).msg.seqId) {
+                        ConversationEntity conversation = conversationEntities.get(0);
+                        conversation.setUnreadCount(0);
+                        conversation.setLastReadMsgId(msgItems.get(0).msg.seqId);
+                        conversation.setLastReadMsgTime(msgItems.get(0).msg.sendTime);
+                        convDao.insertOrReplace(conversation);
+                        LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_CONV_UPDATE, MessageMapper.INSTANCE.toClientConversation(conversationEntities.get(0)));
+                    }
                 }
 
                 emitter.onNext(msgItems);
@@ -420,6 +437,23 @@ public class MsChatActivity extends BasicActivity implements
                             if (session != null) {
                                 MessageEntityDao dao = session.getMessageEntityDao();
                                 dao.insertOrReplaceInTx(entities);
+                            }
+
+                            if (respLatestMessages.messages.size() > 0) {
+                                ConversationEntityDao convDao = session.getConversationEntityDao();
+                                List<ConversationEntity> conversationEntities = convDao.queryBuilder()
+                                        .where(ConversationEntityDao.Properties.Cid.eq(cId))
+                                        .build()
+                                        .list();
+                                if (conversationEntities.size() > 0
+                                        && conversationEntities.get(0).getLastReadMsgId() != respLatestMessages.messages.get(0).getSeqId()) {
+                                    ConversationEntity conversation = conversationEntities.get(0);
+                                    conversation.setUnreadCount(0);
+                                    conversation.setLastReadMsgId(respLatestMessages.messages.get(0).getSeqId());
+                                    conversation.setLastReadMsgTime(respLatestMessages.messages.get(0).sendTime);
+                                    convDao.insertOrReplace(conversation);
+                                    LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_CONV_UPDATE, MessageMapper.INSTANCE.toClientConversation(conversationEntities.get(0)));
+                                }
                             }
 
                             emitter.onNext(itemMessages);
@@ -575,6 +609,7 @@ public class MsChatActivity extends BasicActivity implements
                                     conversation.setLastMsgId(textMsg1.seqId);
                                     conversation.setLastMsgSenderName(textMsg.getFromName());
                                     conversation.setLastMsgSenderId(textMsg.getFromId());
+                                    dao.insertOrReplace(conversation);
                                 }
                                 LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_CONV_UPDATE, MessageMapper.INSTANCE.toClientConversation(conversationEntities.get(0)));
                             }

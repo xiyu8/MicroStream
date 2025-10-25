@@ -14,16 +14,20 @@ import com.jason.microstream.core.im.tup.data.msg.TestMsg;
 import com.jason.microstream.core.im.tup.data.msg.VideoCmd;
 import com.jason.microstream.core.im.tup.joint.MsgNotifier;
 import com.jason.microstream.db.AppDatabaseManager;
+import com.jason.microstream.db.entity.ConversationEntity;
+import com.jason.microstream.db.entity.generator.ConversationEntityDao;
 import com.jason.microstream.db.entity.generator.DaoSession;
 import com.jason.microstream.db.entity.generator.MessageEntityDao;
 import com.jason.microstream.localbroadcast.Events;
 import com.jason.microstream.localbroadcast.LocBroadcast;
+import com.jason.microstream.mapper.MessageMapper;
 import com.jason.microstream.mapper.MessageMapper2;
 
 import org.webrtc.IceCandidate;
 import org.webrtc.SessionDescription;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 public class MsgHandler implements MsgNotifier {
     private static final String TAG = MsgHandler.class.getSimpleName();
@@ -110,9 +114,31 @@ public class MsgHandler implements MsgNotifier {
             if (session != null) {
                 MessageEntityDao dao = session.getMessageEntityDao();
                 dao.insertOrReplaceInTx(MessageMapper2.INSTANCE.toTextMessageDb(textMsg));
+                LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_MSG_RECEIVE, textMsg);
+
+                ConversationEntityDao convDao = session.getConversationEntityDao();
+                List<ConversationEntity> conversationEntities = convDao.queryBuilder()
+                        .where(ConversationEntityDao.Properties.Cid.eq(textMsg.getCid()))
+                        .build()
+                        .list();
+                if (conversationEntities.size() > 0) {
+                    ConversationEntity conversation = conversationEntities.get(0);
+                    conversation.setLastMsgContent(textMsg.text);
+                    conversation.setLastMsgTime(textMsg.sendTime);
+                    conversation.setLastMsgId(textMsg.seqId);
+                    conversation.setLastMsgSenderName(textMsg.getFromName());
+                    conversation.setLastMsgSenderId(textMsg.getFromId());
+
+                    conversation.setUnreadCount(conversation.getUnreadCount() + 1);
+//                    conversation.setLastReadMsgId(textMsg.getSeqId());
+//                    conversation.setLastReadMsgTime(textMsg.sendTime);
+
+                    convDao.insertOrReplace(conversation);
+                    LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_CONV_UPDATE, MessageMapper.INSTANCE.toClientConversation(conversationEntities.get(0)));
+                }
+
             }
 
-            LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_MSG_RECEIVE, textMsg);
 
         } else {
 

@@ -313,12 +313,20 @@ public class MsConversationListFragment extends MainFragment<MsConversationListP
             ConversationHolder.Item item = itemsMap.get(conversation.cid);
             if (item != null) {
                 int fromPosition = items.indexOf(item);
+                int toPosition = 0;
+                for (int i = 0; i < items.size(); i++) {
+                    if (conversation.lastMsgTime > items.get(i).conv.lastMsgTime) {
+                        toPosition = i;
+                        break;
+                    }
+                }
                 items.remove(item);
-                items.addFirst(item);
+                items.add(toPosition, item);
                 item.conv = conversation;
+                int finalToPosition = toPosition;
                 getActivity().runOnUiThread(() -> {
-                    conversationAdapter.notifyItemMoved(fromPosition + 1, 0 + 1);
-                    conversationAdapter.notifyItemChanged(0 + 1);
+                    conversationAdapter.notifyItemMoved(fromPosition + 1, finalToPosition + 1);
+                    conversationAdapter.notifyItemChanged(finalToPosition + 1);
                 });
             } else {
                 //TODO:
