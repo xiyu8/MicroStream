@@ -57,7 +57,7 @@ public class ReceiveTextMessageHolder extends MessageHolder<ItemMessage> {
         }
         TextMsg textMsg = (TextMsg) item.msg;
 
-        if (textMsg.state == ImMsgConfig.SendState.SENDING) {
+        if (textMsg.getState() == ImMsgConfig.SendState.SENDING) {
 //            ai_msg_status_view.setVisibility(View.VISIBLE);
 
 //                ai_re_gen.setVisibility(View.GONE);
@@ -68,7 +68,7 @@ public class ReceiveTextMessageHolder extends MessageHolder<ItemMessage> {
 
             text_content.setText(textMsg.text);
 //            text_content.setTwinkle(false);
-        } else if (textMsg.state == ImMsgConfig.SendState.SEND_SUCCESS) {
+        } else if (textMsg.getState() == ImMsgConfig.SendState.SEND_SUCCESS) {
 //            ai_msg_status_view.setVisibility(View.GONE);
 
 //                ai_re_gen.setVisibility(View.VISIBLE);

@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * itemClick itemChildClick and its longClick
@@ -59,10 +60,10 @@ public abstract class BasicHolder<D extends BasicHolder.Item> extends RecyclerVi
     protected abstract void bindView();
 //    public abstract void bindData(D item);
 
-    ArrayList<D> items;
+    List<D> items;
     D item;
     int position;
-    void bindDataBase(ArrayList<D> items, D item,int position) {
+    void bindDataBase(List<D> items, D item, int position) {
         this.items = items;
         this.item = item;
         this.position = position;
@@ -72,7 +73,7 @@ public abstract class BasicHolder<D extends BasicHolder.Item> extends RecyclerVi
     public abstract void bindData(D item, int position);
 
 
-    public ArrayList<D> getItems() {
+    public List<D> getItems() {
         return items;
     }
 

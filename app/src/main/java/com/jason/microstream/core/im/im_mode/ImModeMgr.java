@@ -28,16 +28,18 @@ public class ImModeMgr {
     }
 
     public void sendTextMsg(TextMsg textMsg, ImSendCallback callback) {
+//        textMsg.setContent(textMsg.getContent());
         Core.getCore().sendTo(textMsg, Coder.MSG_TYPE_IM, new SendNode.SendCallback() {
             @Override
             public void onSendSuccess(SendNode node) {
-                textMsg.state = ImMsgConfig.SendState.SEND_SUCCESS;
+                textMsg.seqId = node.seqId;
+                textMsg.setState(ImMsgConfig.SendState.SEND_SUCCESS);
                 callback.onSendSuccess(textMsg);
             }
 
             @Override
             public void onSendFailed(IOException e, SendNode node) {
-                textMsg.state = ImMsgConfig.SendState.SEND_FAIL;
+                textMsg.setState(ImMsgConfig.SendState.SEND_FAIL);
                 callback.onSendFail(textMsg,e);
             }
         });

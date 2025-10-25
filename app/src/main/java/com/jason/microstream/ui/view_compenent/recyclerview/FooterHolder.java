@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import com.jason.microstream.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class FooterHolder  extends BasicHolder{
 
@@ -23,7 +24,7 @@ public class FooterHolder  extends BasicHolder{
     public void bindData(BasicHolder.Item item, int position) {
     }
 
-    public void addHeaderViews(ArrayList<View> views) {
+    public void addHeaderViews(List<View> views) {
         for (View view : views) {
             ((ViewGroup) itemView).addView(view);
         }

@@ -14,7 +14,7 @@ public class VideoCmd extends BaseMsg {
         this.cmdContent = cmdContent;
         this.peerId = peerId;
         this.cmd = cmd;
-        this.fromId = fromId;
-        this.toId = toId;
+        this.setFromId(fromId);
+        this.setToId(toId);
     }
 }

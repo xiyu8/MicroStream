@@ -8,4 +8,15 @@ public class TextMsg extends BaseMsg{
     public TextMsg() {
         setMsgType(ImMsgConfig.ImMsgType.TYPE_TEXT);
     }
+
+    public TextMsg(BaseMsg baseMsg) {
+        super(baseMsg);
+        this.text = baseMsg.getContent();
+//        this.setArriveTime(baseMsg.);
+//        this.setReadTime(baseMsg.);
+//        this.setRecallTime(baseMsg.);
+//        this.setAtUsers(baseMsg.);
+//        this.setReplyMsgId(baseMsg.);
+
+    }
 }

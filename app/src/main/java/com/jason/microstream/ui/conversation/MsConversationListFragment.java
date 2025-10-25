@@ -2,6 +2,7 @@ package com.jason.microstream.ui.conversation;
 
 import static java.lang.Thread.sleep;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.gyf.immersionbar.ImmersionBar;
 import com.jason.microstream.R;
 import com.jason.microstream.broadcastevent.EventNetworkChanged;
+import com.jason.microstream.core.im.reqresp.data.bean.chat.ClientConversation;
+import com.jason.microstream.localbroadcast.Events;
+import com.jason.microstream.localbroadcast.LocBroadcast;
+import com.jason.microstream.localbroadcast.LocBroadcastReceiver;
 import com.jason.microstream.ui.base.BriefObserver;
+import com.jason.microstream.ui.chat.MsChatActivity;
 import com.jason.microstream.ui.view_compenent.recyclerview.BasicAdapter;
 import com.jason.microstream.ui.view_compenent.recyclerview.LoadMoreHolder;
 import com.jason.microstream.ui.conversation.holder.ConversationHolder;
@@ -27,6 +33,11 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -38,7 +49,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 public class MsConversationListFragment extends MainFragment<MsConversationListPresenter>
         implements MsConversationListPresenter.View
         , BasicAdapter.ItemClickListener<ConversationHolder.Item>
-        , LoadMoreHolder.LoadMoreListener, BasicAdapter.ItemChildClickListener<ConversationHolder.Item> {
+        , LoadMoreHolder.LoadMoreListener, BasicAdapter.ItemChildClickListener<ConversationHolder.Item>, LocBroadcastReceiver {
     @Override
     protected int onCreateLayout() {
         return R.layout.fragment_conversation_list;
@@ -78,20 +89,11 @@ public class MsConversationListFragment extends MainFragment<MsConversationListP
 
     }
 
-    @Override
-    protected int getSelectedIcon() {
-        return R.drawable.tab_conversation_selected;
-    }
-
-    @Override
-    protected int getUnselectedIcon() {
-        return R.drawable.tab_conversation_unselected;
-    }
-
 
     RecyclerView conversation_list;
     ConversationAdapter conversationAdapter;
-    ArrayList<ConversationHolder.Item> items;
+    Map<String, ConversationHolder.Item> itemsMap;
+    LinkedList<ConversationHolder.Item> items;
     private void initView() {
         ImmersionBar.with(this)
                 .statusBarDarkFont(true)
@@ -102,19 +104,22 @@ public class MsConversationListFragment extends MainFragment<MsConversationListP
 
         conversation_list = getView().findViewById(R.id.conversation_list);
 
-        items = new ArrayList<>();
+        items = new LinkedList<>();
+        itemsMap = new HashMap<>();
         conversationAdapter = new ConversationAdapter(items,this);
         conversation_list.setLayoutManager(new LinearLayoutManager(getContext()));
         conversation_list.setAdapter(conversationAdapter);
 
-        conversationAdapter.enableLoadMore(true);
+        conversationAdapter.enableLoadMore(false);
         conversationAdapter.setLoadMoreListener(this);
         conversationAdapter.setItemChildClickListener(this);
 
         conversationAdapter.addHeader(LayoutInflater.from(getContext()).inflate(R.layout.header_conversation_list, null));
     }
 
+    String[] EVENTS = {Events.ACTION_ON_CONV_ADD, Events.ACTION_ON_CONV_UPDATE};
     private void initData() {
+        LocBroadcast.getInstance().registerBroadcast(this, EVENTS);
         getPresenter().getAllConversions();
         if (!EventBus.getDefault().isRegistered(this)) {
             EventBus.getDefault().register(this);
@@ -126,7 +131,11 @@ public class MsConversationListFragment extends MainFragment<MsConversationListP
 
     @Override
     public void onItemClick(ConversationHolder.Item item, int position) {
-
+        Intent intent = new Intent(getContext(), MsChatActivity.class);
+        intent.putExtra(MsChatActivity.KEY_C_ID, item.conv.cid);
+        intent.putExtra(MsChatActivity.KEY_C_TYPE, 1);
+        intent.putExtra("userName", item.conv.cName);
+        startActivity(intent);
     }
 
     @Override
@@ -266,6 +275,7 @@ public class MsConversationListFragment extends MainFragment<MsConversationListP
     @Override
     public void onDestroy() {
         EventBus.getDefault().unregister(this);
+        LocBroadcast.getInstance().unRegisterBroadcast(this, EVENTS);
         super.onDestroy();
     }
 
@@ -273,9 +283,13 @@ public class MsConversationListFragment extends MainFragment<MsConversationListP
     @Override
     public void showConversions(ArrayList<ConversationHolder.Item> items) {
         this.items.clear();
+        itemsMap.clear();
+        for (ConversationHolder.Item item : items) {
+            itemsMap.put(item.conv.cid, item);
+        }
         this.items.addAll(items);
         conversationAdapter.notifyDataSetChanged();
-//        conversationAdapter.loadMoreComplete();
+        conversationAdapter.loadMoreComplete();
     }
 
     @Override
@@ -283,5 +297,43 @@ public class MsConversationListFragment extends MainFragment<MsConversationListP
 
     }
 
+    @Override
+    public void onReceive(String broadcastName, Object obj) {
+        if (broadcastName.equals(Events.ACTION_ON_CONV_ADD)) {
+            ClientConversation conversation = (ClientConversation) obj;
+            ConversationHolder.Item item = new ConversationHolder.Item();
+            item.conv = conversation;
+            itemsMap.put(item.conv.cid, item);
+            items.addFirst(item);
+            requireActivity().runOnUiThread(() -> {
+                conversationAdapter.notifyItemInserted(0 + 1);
+            });
+        } else if (broadcastName.equals(Events.ACTION_ON_CONV_UPDATE)) {
+            ClientConversation conversation = (ClientConversation) obj;
+            ConversationHolder.Item item = itemsMap.get(conversation.cid);
+            if (item != null) {
+                int fromPosition = items.indexOf(item);
+                items.remove(item);
+                items.addFirst(item);
+                item.conv = conversation;
+                getActivity().runOnUiThread(() -> {
+                    conversationAdapter.notifyItemMoved(fromPosition + 1, 0 + 1);
+                    conversationAdapter.notifyItemChanged(0 + 1);
+                });
+            } else {
+                //TODO:
+            }
+        }
+    }
 
+
+    @Override
+    protected int getSelectedIcon() {
+        return R.drawable.tab_conversation_selected;
+    }
+
+    @Override
+    protected int getUnselectedIcon() {
+        return R.drawable.tab_conversation_unselected;
+    }
 }

@@ -41,12 +41,11 @@ public class MsRequester<RP> implements DataParser {
     }
     private void requestImp() {
         if (reqWrapper == null || reqWrapper.requestContent == null) {
-            if (callBack != null)
+            if (callBack != null){
                 callBack.onFail(new RuntimeException("ms request with null!"), null);
+                callBack = null;
+            }
             return;
-        }
-        if (callBack == null) {
-            callBack = new CallbackAdapter();
         }
 
         RequestCore.get().send(reqWrapper, this);
@@ -61,21 +60,33 @@ public class MsRequester<RP> implements DataParser {
         BaseResp baseResp = gson.fromJson(responseContent, BaseResp.class);
         if (baseResp.errorCode == 0) {
             if (clazz == String.class) { //不解析，给业务层解析的情况
-                callBack.onSuccess((RP) baseResp.data);
+                if(callBack!=null) {
+                    callBack.onSuccess((RP) baseResp.data);
+                    callBack = null;
+                }
             } else {
                 resp = (RP) gson.fromJson(baseResp.data, clazz);
-                callBack.onSuccess(resp);
+                if(callBack!=null) {
+                    callBack.onSuccess(resp);
+                    callBack = null;
+                }
             }
         } else {
-            callBack.onFail(new RuntimeException(((BaseResp) resp).errorCode + ":" + ((BaseResp) resp).errorCode)
-                    ,reqWrapper);
+            if(callBack!=null) {
+                callBack.onFail(new RuntimeException(((BaseResp) resp).errorCode + ":" + ((BaseResp) resp).errorCode)
+                        ,reqWrapper);
+                callBack = null;
+            }
 
         }
     }
 
     @Override
     public void onFail(Exception e) {
-        callBack.onFail(e, reqWrapper);
+        if(callBack!=null) {
+            callBack.onFail(e, reqWrapper);
+            callBack = null;
+        }
     }
 
 

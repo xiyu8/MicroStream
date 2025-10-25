@@ -115,6 +115,11 @@ public class AccountManager {
         return user.getUid();
     }
 
+    public String getUsername() {
+        if(user==null) return null;
+        return user.getName();
+    }
+
     public void setUid(String uid) {
         if (user != null) {
             user.setUid(uid);

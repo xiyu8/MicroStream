@@ -12,7 +12,7 @@ public class TestMsg extends BaseMsg {
     public TestMsg(String fromId, String toId, String id, String content) {
         this.id = id;
         this.content = content;
-        this.fromId = fromId;
-        this.toId = toId;
+        this.setFromId(fromId);
+        this.setToId(toId);
     }
 }

@@ -47,7 +47,7 @@ public class SendTextMessageHolder extends MessageHolder<ItemMessage> {
         }
         TextMsg textMsg = (TextMsg) item.msg;
 
-        if (textMsg.state == ImMsgConfig.SendState.SENDING) {
+        if (textMsg.getState() == ImMsgConfig.SendState.SENDING) {
             part_ai_message_gen_animator_area.setVisibility(View.VISIBLE);
             send_fail.setVisibility(View.INVISIBLE);
 //            ai_msg_status_view.setVisibility(View.VISIBLE);
@@ -57,11 +57,11 @@ public class SendTextMessageHolder extends MessageHolder<ItemMessage> {
 //            Uri uri = new Uri.Builder().scheme(UriUtil.LOCAL_RESOURCE_SCHEME).path(String.valueOf(R.drawable.part_ai_message_gen_animator)).build();
 //            DraweeController draweeController = Fresco.newDraweeControllerBuilder().setUri(uri).setAutoPlayAnimations(true).build();
 //            part_ai_message_gen_gif.setController(draweeController);
-        } else if (textMsg.state == ImMsgConfig.SendState.SEND_FAIL) {
+        } else if (textMsg.getState() == ImMsgConfig.SendState.SEND_FAIL) {
             part_ai_message_gen_animator_area.setVisibility(View.GONE);
             send_fail.setVisibility(View.VISIBLE);
 //            ai_msg_status_view.setVisibility(View.GONE);
-        } else if (textMsg.state == ImMsgConfig.SendState.SEND_SUCCESS) {
+        } else if (textMsg.getState() == ImMsgConfig.SendState.SEND_SUCCESS) {
             part_ai_message_gen_animator_area.setVisibility(View.GONE);
             send_fail.setVisibility(View.INVISIBLE);
 //            ai_msg_status_view.setVisibility(View.GONE);

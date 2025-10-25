@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import com.jason.microstream.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HeaderHolder extends BasicHolder{
 
@@ -24,7 +25,7 @@ public class HeaderHolder extends BasicHolder{
 
     }
 
-    public void addHeaderViews(ArrayList<View> views) {
+    public void addHeaderViews(List<View> views) {
         for (View view : views) {
             ((ViewGroup) itemView).addView(view);
         }

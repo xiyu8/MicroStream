@@ -11,12 +11,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.request.RequestOptions;
 import com.jason.microstream.R;
 import com.jason.microstream.account.AccountManager;
+import com.jason.microstream.core.im.reqresp.RequestMonitor;
+import com.jason.microstream.core.im.reqresp.data.bean.chat.ClientConversation;
 import com.jason.microstream.tool.TimeUtil2;
 import com.jason.microstream.ui.view_compenent.recyclerview.BasicAdapter;
 import com.jason.microstream.ui.view_compenent.recyclerview.BasicHolder;
@@ -73,29 +76,30 @@ public class ConversationHolder extends BasicHolder<ConversationHolder.Item> {
     @Override
     public void bindData(Item item, int position) {
         @DrawableRes
-        int avatarRes = item.type == IConversation.TYPE_P2P ? R.drawable.default_avatar : R.drawable.default_group_avatar;
+        int avatarRes = item.conv.cType == IConversation.TYPE_P2P ? R.drawable.default_avatar : R.drawable.default_group_avatar;
         Glide.with(chat_avatar).load(avatarRes)
                 .apply(RequestOptions.bitmapTransform(new CircleCrop())).into(chat_avatar);
-        if (item.type == IConversation.TYPE_P2P) {
+        if (item.conv.cType == IConversation.TYPE_P2P) {
             chat_avatar.setVisibility(View.VISIBLE);
             group_avatar.setVisibility(View.INVISIBLE);
             Glide.with(chat_avatar).load(avatarRes)
                     .apply(RequestOptions.bitmapTransform(new CircleCrop())).into(chat_avatar);
+//            chat_name.setText(item.conv.);
         } else {
             chat_avatar.setVisibility(View.INVISIBLE);
             group_avatar.setVisibility(View.VISIBLE);
             group_avatar.setAvatar(item.cid, IConversation.TYPE_GROUP, false, item.memberAvatars, item.chatName);
         }
-        is_top.setVisibility(item.isTop ? View.VISIBLE : View.GONE);
+        is_top.setVisibility(item.conv.isTop ? View.VISIBLE : View.GONE);
 //        chat_avatar;
-        chat_name.setText(item.chatName);
-        if (item.lastMsg == null) {
+        chat_name.setText(item.conv.cName);
+        if (item.conv.lastMsgContent == null) {
             last_msg_content.setText("");
             last_msg_time.setText("");
 
         } else {
-            last_msg_content.setText(item.lastMsg.content);
-            last_msg_time.setText(holderSector.getTime(item.lastTime));
+            last_msg_content.setText(item.conv.lastMsgContent);
+            last_msg_time.setText(holderSector.getTime(item.conv.lastMsgTime));
         }
 
 
@@ -111,34 +115,34 @@ public class ConversationHolder extends BasicHolder<ConversationHolder.Item> {
                 last_msg_time.setText(TimeUtil2.getSimpleDateString(item.lastTime));
             }
         } else {
-            if (item.lastMsg == null) {
+            if (item.conv.lastMsgContent == null) {
                 last_msg_content.setVisibility(View.GONE);
-                if (item.lastTime != 0) {
+                if (item.conv.lastMsgTime != 0) {
                     last_msg_time.setVisibility(View.VISIBLE);
-                    last_msg_time.setText(TimeUtil2.getSimpleDateString(item.lastTime));
+                    last_msg_time.setText(TimeUtil2.getSimpleDateString(item.conv.lastMsgTime));
                 } else {
                     last_msg_time.setVisibility(View.GONE);
                 }
             } else {
                 last_msg_content.setVisibility(View.VISIBLE);
                 last_msg_content.setTextColor(last_msg_content.getContext().getResources().getColor(R.color.sh_text_sub_hint));
-                int type = item.lastMsg.type;
+                int type = /*item.conv.lastMsg.type*/1;
                 String content;
-                content = holderSector.getContentByType(item.lastMsg.type, item.lastMsg.content);
+                content = holderSector.getContentByType(type, item.conv.lastMsgContent);
 
-                if (item.type == IConversation.TYPE_GROUP && type != MsMessage.TYPE_SYSTEM) {
+                if (item.conv.cType == IConversation.TYPE_GROUP && type != MsMessage.TYPE_SYSTEM) {
                     String prex = "";
-                    if (!TextUtils.isEmpty(item.lastMsg.sendId)) {
-                        if (!item.lastMsg.sendId.equals(AccountManager.get().getUid())) {
-                            prex = item.lastMsg.sendName + ": ";
+                    if (!TextUtils.isEmpty(item.conv.lastMsgSenderId)) {
+                        if (!item.conv.lastMsgSenderId.equals(AccountManager.get().getUid())) {
+                            prex = item.conv.lastMsgSenderName + ": ";
                         }
                     }
                     content = prex + content;
                 }
-                if (item.unreadCount > 0 && !item.isMute) {
-                    content = "[" + item.unreadCount + "条未读]" + content;
+                if (item.conv.unreadCount > 0 && !item.conv.isMute) {
+                    content = "[" + item.conv.unreadCount + "条未读]" + content;
                 }
-                if (item.isAt && item.unreadCount > 0) {
+                if (item.isAt && item.conv.unreadCount > 0) {
                     String str = last_msg_content.getContext().getResources().getString(R.string.at_you);
                     SpannableString ss = new SpannableString(str + " " + content);
                     ss.setSpan(new ForegroundColorSpan(last_msg_content.getContext().getResources().getColor(R.color.sh_caution)), 0, str.length(),
@@ -162,7 +166,7 @@ public class ConversationHolder extends BasicHolder<ConversationHolder.Item> {
                     ss.setSpan(new ForegroundColorSpan(last_msg_content.getContext().getResources().getColor(R.color.sh_caution)), 0, str.length(),
                             Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
                     last_msg_content.setText(ss);
-                } else if ((item.lastMsg.type & IConversation.MESSAGE_TYPE_REVOKE) == IConversation.MESSAGE_TYPE_REVOKE) {
+                } else if ((type & IConversation.MESSAGE_TYPE_REVOKE) == IConversation.MESSAGE_TYPE_REVOKE) {
                     String str = last_msg_content.getContext().getResources().getString(R.string.message_revoke);
                     SpannableString ss = new SpannableString(str + " " + content);
                     ss.setSpan(new ForegroundColorSpan(last_msg_content.getContext().getResources().getColor(R.color.sh_caution)), 0, str.length(),
@@ -181,16 +185,16 @@ public class ConversationHolder extends BasicHolder<ConversationHolder.Item> {
                     }
                 }
 
-                if (item.lastMsg.status == MsMessage.STATUS_FAIL ||
-                        item.lastMsg.status == MsMessage.STATUS_SENDING) {
-                    if (!TextUtils.isEmpty(item.lastMsg.sendId) && item.lastMsg.sendId.equals(AccountManager.get().getUid())) {
-                        String str = last_msg_content.getContext().getResources().getString(R.string.message_send_fail);
-                        SpannableString ss = new SpannableString(str + " " + content);
-                        ss.setSpan(new ForegroundColorSpan(last_msg_content.getContext().getResources().getColor(R.color.c_caution)), 0, str.length(),
-                                Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-                        last_msg_content.setText(ss);
-                    }
-                }
+//                if (item.lastMsg.status == MsMessage.STATUS_FAIL ||
+//                        item.lastMsg.status == MsMessage.STATUS_SENDING) {
+//                    if (!TextUtils.isEmpty(item.lastMsg.sendId) && item.lastMsg.sendId.equals(AccountManager.get().getUid())) {
+//                        String str = last_msg_content.getContext().getResources().getString(R.string.message_send_fail);
+//                        SpannableString ss = new SpannableString(str + " " + content);
+//                        ss.setSpan(new ForegroundColorSpan(last_msg_content.getContext().getResources().getColor(R.color.c_caution)), 0, str.length(),
+//                                Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+//                        last_msg_content.setText(ss);
+//                    }
+//                }
                 if (type == 0) {
                     if (!TextUtils.isEmpty(item.lastMsg.content)) {
                         last_msg_content.setText(item.lastMsg.content);
@@ -199,46 +203,46 @@ public class ConversationHolder extends BasicHolder<ConversationHolder.Item> {
                     }
                 }
                 last_msg_time.setVisibility(View.VISIBLE);
-                last_msg_time.setText(holderSector.getTime(item.lastMsg.timeStp));
+                last_msg_time.setText(holderSector.getTime(item.conv.lastMsgTime));
             }
         }
 
 
-        if (item.unreadCount > 0) {
+        if (item.conv.unreadCount > 0) {
             unread_count.setVisibility(View.VISIBLE);
             mute_unread.setVisibility(View.VISIBLE);
-            if (item.unreadCount > 99) {
+            if (item.conv.unreadCount > 99) {
                 unread_count.setText("99+");
             } else {
-                unread_count.setText(String.valueOf(item.unreadCount));
+                unread_count.setText(String.valueOf(item.conv.unreadCount));
             }
         } else {
             unread_count.setVisibility(View.GONE);
             mute_unread.setVisibility(View.GONE);
         }
 
-        if (item.isMute) {
+        if (item.conv.isMute) {
             mute_area.setVisibility(View.VISIBLE);
             unread_count.setVisibility(View.GONE);
         } else {
-//            if (item.cid.equals(IConversation.JOIN_GROUP_CID)) {
-//                unread_count.setVisibility(View.GONE);
-//                mute_icon.setVisibility(View.GONE);
-//                if (item.unreadCount > 0) {
-//                    mute_area.setVisibility(View.VISIBLE);
-//                    mute_unread.setVisibility(View.VISIBLE);
-//                } else {
-//                    mute_area.setVisibility(View.GONE);
-//                    mute_unread.setVisibility(View.GONE);
-//                }
-//            }/* else if (item.cid.equals(IConversation.FRIENDS_CID) && item.lastMsg != null && item.getLastMessage().getUnreadCount() > 0) {
-//                mute_area.setVisibility(View.VISIBLE);
-//                unread_count.setVisibility(View.GONE);
-//                mute_icon.setVisibility(View.GONE);
-//                mute_unread.setVisibility(View.VISIBLE);
-//            }*/ else {
-//                mute_area.setVisibility(View.GONE);
-//            }
+            if (/*item.cid.equals(IConversation.JOIN_GROUP_CID)*/false) {
+                unread_count.setVisibility(View.GONE);
+                mute_icon.setVisibility(View.GONE);
+                if (item.conv.unreadCount > 0) {
+                    mute_area.setVisibility(View.VISIBLE);
+                    mute_unread.setVisibility(View.VISIBLE);
+                } else {
+                    mute_area.setVisibility(View.GONE);
+                    mute_unread.setVisibility(View.GONE);
+                }
+            }/* else if (item.cid.equals(IConversation.FRIENDS_CID) && item.lastMsg != null && item.getLastMessage().getUnreadCount() > 0) {
+                mute_area.setVisibility(View.VISIBLE);
+                unread_count.setVisibility(View.GONE);
+                mute_icon.setVisibility(View.GONE);
+                mute_unread.setVisibility(View.VISIBLE);
+            }*/ else {
+                mute_area.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -247,6 +251,7 @@ public class ConversationHolder extends BasicHolder<ConversationHolder.Item> {
 
 
     public static class Item extends BasicHolder.Item{
+        public ClientConversation conv;
         public String cid;
         public int type;
 
@@ -268,6 +273,16 @@ public class ConversationHolder extends BasicHolder<ConversationHolder.Item> {
             public String sendId;
             public String sendName;
             public int status;
+        }
+
+        @Override
+        public int hashCode() {
+            return conv.cid.hashCode();
+        }
+
+        @Override
+        public boolean equals(@Nullable Object other) {
+            return this.conv.cid.equals(((Item) other).conv.cid);
         }
     }
 

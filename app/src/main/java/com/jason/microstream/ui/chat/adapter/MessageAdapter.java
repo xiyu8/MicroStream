@@ -46,7 +46,7 @@ public class MessageAdapter extends BasicAdapter<MessageHolder<ItemMessage>, Ite
         ItemMessage aiMessage = getItems().get(getDataItemPosition(position));
 
         if (aiMessage.msg.getMsgType() == ImMsgConfig.ImMsgType.TYPE_TEXT) {
-            if (aiMessage.msg.fromId.equals(AccountManager.get().getUid())) {
+            if (aiMessage.msg.getFromId().equals(AccountManager.get().getUid())) {
                 return MessageAdapter.TYPE_SEND_TEXT;
             } else {
                 return MessageAdapter.TYPE_RECEIVE_AI_TEXT;

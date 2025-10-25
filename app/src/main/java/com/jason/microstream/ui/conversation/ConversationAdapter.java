@@ -9,10 +9,12 @@ import com.jason.microstream.ui.view_compenent.recyclerview.BasicAdapter;
 import com.jason.microstream.ui.conversation.holder.ConversationHolder;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class ConversationAdapter extends BasicAdapter<ConversationHolder,ConversationHolder.Item> {
 
-    public ConversationAdapter(ArrayList<ConversationHolder.Item> items,ItemClickListener<ConversationHolder.Item> itemClickListener) {
+    public ConversationAdapter(List<ConversationHolder.Item> items, ItemClickListener<ConversationHolder.Item> itemClickListener) {
         super(items, itemClickListener);
     }
 

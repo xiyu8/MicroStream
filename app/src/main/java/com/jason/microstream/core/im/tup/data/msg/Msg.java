@@ -5,6 +5,7 @@ public class Msg {
     public long seqId;
 
     public int _state;
+    public long sendTime;
 
     public Msg() {
     }

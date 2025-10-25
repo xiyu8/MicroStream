@@ -13,8 +13,12 @@ import com.jason.microstream.core.im.tup.MsgDistributor;
 import com.jason.microstream.core.im.tup.data.msg.TestMsg;
 import com.jason.microstream.core.im.tup.data.msg.VideoCmd;
 import com.jason.microstream.core.im.tup.joint.MsgNotifier;
+import com.jason.microstream.db.AppDatabaseManager;
+import com.jason.microstream.db.entity.generator.DaoSession;
+import com.jason.microstream.db.entity.generator.MessageEntityDao;
 import com.jason.microstream.localbroadcast.Events;
 import com.jason.microstream.localbroadcast.LocBroadcast;
+import com.jason.microstream.mapper.MessageMapper2;
 
 import org.webrtc.IceCandidate;
 import org.webrtc.SessionDescription;
@@ -45,7 +49,7 @@ public class MsgHandler implements MsgNotifier {
             TestMsg testMsg = gson.fromJson(msgContent, TestMsg.class);
             // msgCache.add(msgContent);
             Log.e(TAG, "receive cmd MSG_TYPE_TEST:" + msgContent);
-            notify(testMsg.fromId, testMsg.content);
+            notify(testMsg.getFromId(), testMsg.content);
         } else if (sendType == MSG_TYPE_SWAP_ICE) {
             byte[] msgData = new byte[msgModeData.length - MSG_TYPE_SIZE];
             System.arraycopy(msgModeData, MSG_TYPE_SIZE, msgData, 0, msgData.length);
@@ -53,7 +57,7 @@ public class MsgHandler implements MsgNotifier {
             VideoCmd videoCmd = gson.fromJson(msgContent, VideoCmd.class);
             // msgCache.add(msgContent);
             Log.e(TAG, "receive cmd MSG_TYPE_SWAP_ICE:" + msgContent);
-            notifyIce(videoCmd.fromId, gson.fromJson(videoCmd.cmdContent, IceCandidate.class));
+            notifyIce(videoCmd.getFromId(), gson.fromJson(videoCmd.cmdContent, IceCandidate.class));
         } else if (sendType == MSG_TYPE_SWAP_SDP) {
             byte[] msgData = new byte[msgModeData.length - MSG_TYPE_SIZE];
             System.arraycopy(msgModeData, MSG_TYPE_SIZE, msgData, 0, msgData.length);
@@ -61,7 +65,7 @@ public class MsgHandler implements MsgNotifier {
             VideoCmd videoCmd = gson.fromJson(msgContent, VideoCmd.class);
             // msgCache.add(msgContent);
             Log.e(TAG, "receive cmd MSG_TYPE_SWAP_SDP:" + msgContent);
-            notifySwapSdp(videoCmd.fromId, gson.fromJson(videoCmd.cmdContent, SessionDescription.class));
+            notifySwapSdp(videoCmd.getFromId(), gson.fromJson(videoCmd.cmdContent, SessionDescription.class));
         } else if (sendType == MSG_TYPE_OFFER_SDP) {
             byte[] msgData = new byte[msgModeData.length - MSG_TYPE_SIZE];
             System.arraycopy(msgModeData, MSG_TYPE_SIZE, msgData, 0, msgData.length);
@@ -69,7 +73,7 @@ public class MsgHandler implements MsgNotifier {
             VideoCmd videoCmd = gson.fromJson(msgContent, VideoCmd.class);
             // msgCache.add(msgContent);
             Log.e(TAG, "receive cmd MSG_TYPE_OFFER_SDP:" + msgContent);
-            notifyOfferSdp(videoCmd.fromId, gson.fromJson(videoCmd.cmdContent, SessionDescription.class));
+            notifyOfferSdp(videoCmd.getFromId(), gson.fromJson(videoCmd.cmdContent, SessionDescription.class));
         }
     }
 
@@ -101,6 +105,13 @@ public class MsgHandler implements MsgNotifier {
         BaseMsg baseMsg = gson.fromJson(imMsgContent, BaseMsg.class);
         if (baseMsg.getMsgType() == ImMsgConfig.ImMsgType.TYPE_TEXT) {
             TextMsg textMsg = gson.fromJson(imMsgContent, TextMsg.class);
+
+            DaoSession session = AppDatabaseManager.getInstance().getDaoSession();
+            if (session != null) {
+                MessageEntityDao dao = session.getMessageEntityDao();
+                dao.insertOrReplaceInTx(MessageMapper2.INSTANCE.toTextMessageDb(textMsg));
+            }
+
             LocBroadcast.getInstance().sendBroadcast(Events.ACTION_ON_MSG_RECEIVE, textMsg);
 
         } else {

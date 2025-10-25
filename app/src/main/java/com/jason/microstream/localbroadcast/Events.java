@@ -15,4 +15,9 @@ public interface Events {
     String ACTION_ON_INIT_FAIL = "action_on_init_fail";
 
 
+    String ACTION_ON_MSG_UPDATE = "action_on_msg_update";
+    String ACTION_ON_MSG_ADD = "action_on_msg_add";
+
+    String ACTION_ON_CONV_UPDATE = "action_on_conv_update";
+    String ACTION_ON_CONV_ADD = "action_on_conv_add";
 }
